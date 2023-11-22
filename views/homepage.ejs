@@ -1,0 +1,62 @@
+<%- include("templates/header") %>
+<style>
+    body {
+        background-color: #191923;
+        color: white;
+    }
+
+    h1 {
+        margin-top: 5%;
+        padding-bottom: 50px;
+        text-align: center;
+        color: #fbfef9;
+        /* Change the color of the heading */
+    }
+
+    .center {
+        text-align: center;
+        display: flex;
+        margin-top: 30px;
+        /* Adjust the margin as needed */
+    }
+
+    .btn {
+        background-color: #a31621;
+        border-color: #a31621;
+        color: #fbfef9;
+        font-weight: bold;
+
+    }
+</style>
+
+<h1>Welcome to CoolProject!</h1>
+
+<% if (!session.authenticated) { %>
+    <div style="text-align: center;">
+        <p>Project Description goes here...</p>
+        <form action="/signUp">
+            <button type="submit" class="btn" style="margin-top: 25px;">Sign Up</button>
+        </form>
+        <br>
+        <form action="/login">
+            <button type="submit" class="btn" style="margin-bottom: 20px;">Login</button>
+        </form>
+    </div>
+<% } else { %>
+    <div style="text-align: center;">
+        <form action="/main">
+            <button type="submit" class="btn">Generate Quiz</button>
+        </form>
+        <br>
+        <form action="/transcribe">
+            <button type="submit" class="btn">Explain your Document</button>
+        </form>
+        <br>
+        <br>
+        <form action="/signout">
+            <button type="submit" class="btn">Sign Out</button>
+        </form>
+    </div>
+<% } %>
+
+<%- include("templates/footer") %>
