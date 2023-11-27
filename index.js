@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const openai = require("openai");
+const path = require('path');
 
 require("dotenv").config();
 
@@ -8,7 +9,12 @@ const app = express();
 const upload = multer();
 const client = new openai.OpenAI({ apiKey: process.env.OPENAI_API });
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.post("/get_questions", upload.single("notes"), async function (req, res) {
   const notesFile = req.file;
@@ -34,11 +40,27 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
         content: "Here's the notes:\n" + notes,
       },
     ],
-    // response_format: { type: "json_object" },
     model: "gpt-4",
   });
 
-  res.json(JSON.parse(completion.choices[0].message.content))
+  res.json(JSON.parse(completion.choices[0].message.content));
+});
+
+app.get('/questions', (req, res) => {
+  const dummyQuestions = [
+    { content: 'What is the capital of France?' },
+    { content: 'What is the largest planet in our solar system?' }
+  ];
+    res.render('questionStack', { questions: dummyQuestions });
+  });
+
+
+app.get('/', (req, res) => {
+  res.render('landingPage');
+});
+
+app.get('/generate-quiz', (req, res) => {
+  res.send('Quiz generation page will go here.');
 });
 
 app.get("/", function (req, res) {

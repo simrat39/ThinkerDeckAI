@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Cards</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/style/questionStack.css"> <!-- Linking the CSS file -->
+</head>
+<body>
+
+<div class="question">
+    <!-- The stack of Question Cards -->
+    <div id='question-cards' class="question--cards">
+        <% if(typeof questions !== 'undefined' && questions.length > 0) { %>
+          <% questions.forEach(function(question) { %>
+            <div class="question-card"><%= question.content %></div>
+          <% }); %>
+        <% } else { %>
+          <div class="question-card">No questions available.</div>
+        <% } %>
+      </div>
+      
+</div>
+
+<!-- JavaScript dependencies -->
+<script src="https://ajax.googleapis.com/ajax/libs/hammerjs/2.0.8/hammer.min.js"></script>
+<script src="/scripts/questionStack.js"></script> <!-- Including the JS file -->
+
+</body>
+</html>

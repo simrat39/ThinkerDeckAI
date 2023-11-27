@@ -1,0 +1,23 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 50px;
+    background-color: #f4f4f4;
+}
+.welcome-banner {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+.generate-quiz-btn {
+    padding: 10px 20px;
+    font-size: 1em;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.generate-quiz-btn:hover {
+    background-color: #0056b3;
+}
