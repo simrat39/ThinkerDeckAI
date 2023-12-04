@@ -1,0 +1,90 @@
+Algebra:
+1. Linear Equations and Inequalities:
+
+    Linear equations are equations of the form ax+b=0ax+b=0.
+    Solve equations using the properties of equality.
+    Graphing linear equations on the coordinate plane.
+    Solving and graphing linear inequalities.
+
+2. Quadratic Equations:
+
+    Quadratic equations in the form ax2+bx+c=0ax2+bx+c=0.
+    Factoring, completing the square, and using the quadratic formula to solve equations.
+    Graphing quadratic functions.
+
+3. Systems of Equations:
+
+    Solving systems of linear equations using substitution and elimination.
+    Graphical representation of systems of equations.
+
+4. Polynomials:
+
+    Operations with polynomials (addition, subtraction, multiplication).
+    Factoring polynomials of various degrees.
+
+Geometry:
+1. Properties of Shapes:
+
+    Understanding properties of triangles, quadrilaterals, and other polygons.
+    Calculating perimeter and area of basic shapes.
+
+2. Similarity and Congruence:
+
+    Identifying congruent and similar triangles.
+    Applying similarity and congruence in geometric proofs.
+
+3. Circles:
+
+    Understanding the properties of circles.
+    Calculating circumference and area of circles.
+
+4. Volume and Surface Area:
+
+    Calculating volume and surface area of prisms, cylinders, pyramids, cones, and spheres.
+
+Trigonometry:
+1. Basic Trigonometric Ratios:
+
+    Sine, cosine, and tangent ratios in right-angled triangles.
+    Solving right triangles using trigonometric ratios.
+
+2. Trigonometric Functions:
+
+    Extending trigonometric functions to all angles.
+    Graphs of trigonometric functions.
+
+3. Applications of Trigonometry:
+
+    Solving problems involving angles of elevation and depression.
+    Trigonometric identities.
+
+Statistics:
+1. Data Representation:
+
+    Representing data using tables, graphs, and charts.
+    Measures of central tendency (mean, median, mode).
+
+2. Probability:
+
+    Basic probability concepts.
+    Calculating probabilities of events.
+
+3. Inferential Statistics:
+
+    Introduction to hypothesis testing.
+    Confidence intervals.
+
+Miscellaneous:
+1. Number and Number Sense:
+
+    Properties of real numbers.
+    Scientific notation.
+
+2. Coordinate Geometry:
+
+    Understanding the coordinate plane.
+    Distance and midpoint formulas.
+
+3. Rational and Irrational Numbers:
+
+    Properties of rational and irrational numbers.

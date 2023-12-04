@@ -15,10 +15,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 app.post("/get_questions", upload.single("notes"), async function (req, res) {
   const notesFile = req.file;
   const notes = notesFile.buffer.toString();
+
+  const subject = req.body.subject
+  const num_ques = req.body.num_ques
 
   const completion = await client.chat.completions.create({
     messages: [
@@ -29,11 +31,15 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
       },
       {
         role: "user",
-        content: "You need to generate 20 questions",
+        content: `You need to generate ${num_ques} questions`,
       },
       {
         role: "system",
-        content: "The subject for the notes is math.",
+        content: `The subject for the notes is ${subject}.`,
+      },
+      {
+        role: "system",
+        content: `Don't say anything else, only valid json output`,
       },
       {
         role: "system",
@@ -60,7 +66,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/generate-quiz', (req, res) => {
-  res.send('Quiz generation page will go here.');
+  res.render('generateQuiz')
 });
 
 app.get("/", function (req, res) {

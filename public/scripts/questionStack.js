@@ -76,8 +76,8 @@ xhrUser.send();
 function loadPods() {
     const xhttp = new XMLHttpRequest();
     // Show the loading circle
-    var loadingCircle = document.getElementById('loading-circle');
-    loadingCircle.style.display = 'block';
+    // var loadingCircle = document.getElementById('loading-circle');
+    // loadingCircle.style.display = 'block';
 
     // Handling the response from the server
     xhttp.onload = () => {
