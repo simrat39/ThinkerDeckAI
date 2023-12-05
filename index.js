@@ -15,42 +15,66 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+
 app.post("/get_questions", upload.single("notes"), async function (req, res) {
-  const notesFile = req.file;
-  const notes = notesFile.buffer.toString();
+  try {
+    const notesFile = req.file;
+    const notes = notesFile.buffer.toString();
+    const subject = req.body.subject;
+    const num_ques = req.body.num_ques;
 
-  const subject = req.body.subject
-  const num_ques = req.body.num_ques
-
-  const completion = await client.chat.completions.create({
-    messages: [
+    const messages = [
       {
         role: "system",
-        content:
-          "You are a quiz questions creator. Your job is to generate quiz questions based on the inputted notes. Give the answers as well and make it return JSON",
+        content: "You are a quiz questions creator. Your job is to generate quiz questions based on the inputted notes. Give the answers as well and make it return JSON."
       },
       {
         role: "user",
-        content: `You need to generate ${num_ques} questions`,
+        content: `Generate ${num_ques} questions with multiple-choice answers based on the following notes for the subject '${subject}'.`
       },
       {
         role: "system",
-        content: `The subject for the notes is ${subject}.`,
+        content: "The format for each question should be a clear, concise question followed by four multiple-choice options, with one correct answer marked. Don't say anything else, only valid json output."
       },
       {
         role: "system",
-        content: `Don't say anything else, only valid json output`,
+        content: `Example format:
+        Question: This legendary boxer was originally named Cassius Clay.
+        Options: A) Joe Frazier, B) Sugar Ray Leonard, C) Muhammad Ali, D) George Foreman
+        Answer: C`
       },
       {
         role: "system",
-        content: "Here's the notes:\n" + notes,
-      },
-    ],
-    model: "gpt-4",
-  });
+        content: `Here are the notes:\n${notes}`
+      }
+    ];
 
-  res.json(JSON.parse(completion.choices[0].message.content));
+    const completion = await client.chat.completions.create({
+      model: "gpt-4",
+      messages: messages,
+    });
+
+  //   const questions = JSON.parse(completion.choices[0].message.content);
+  //   res.json(questions);
+
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).send("An error occurred while generating the questions.");
+  // }
+
+
+  const generatedQuestions = JSON.parse(completion.choices[0].message.content);
+  res.render('questionStack', { questions: generatedQuestions }); // Render the questions on the questionStack view
+} catch (error) {
+  console.error(error);
+  res.status(500).send("An error occurred while generating the questions.");
+}
 });
+  
+
+
+
 
 app.get('/questions', (req, res) => {
   const dummyQuestions = [
