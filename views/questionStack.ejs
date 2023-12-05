@@ -1,31 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Cards</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="/style/questionStack.css"> <!-- Linking the CSS file -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Question Cards</title>
+  <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.11/dist/interact.min.js"></script>
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script src="/scripts/questionStack.js"></script>
+  <link rel="stylesheet" href="/style/questionStack.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 </head>
 <body>
-
-<div class="question">
-    <!-- The stack of Question Cards -->
-    <div id='question-cards' class="question--cards">
-        <% if(typeof questions !== 'undefined' && questions.length > 0) { %>
-          <% questions.forEach(function(question) { %>
-            <div class="question-card"><%= question.content %></div>
-          <% }); %>
-        <% } else { %>
-          <div class="question-card">No questions available.</div>
-        <% } %>
-      </div>
-      
-</div>
-
-<!-- JavaScript dependencies -->
-<script src="https://ajax.googleapis.com/ajax/libs/hammerjs/2.0.8/hammer.min.js"></script>
-<script src="/scripts/questionStack.js"></script> <!-- Including the JS file -->
+  <div class="swiper-container">
+    <div class="swiper-wrapper">
+      <% if(typeof questions !== 'undefined' && questions.length > 0) { %>
+        <% questions.forEach(function(question) { %>
+          <div class="swiper-slide">
+            <div class="question-card">
+              <p class="question-text"><%= question.content %></p>
+              <ul class="options">
+                <% if (question.options && question.options.length > 0) { %>
+                  <% question.options.forEach(function(option) { %>
+                    <li class="option"><%= option %></li>
+                  <% }); %>
+                <% } else { %>
+                  <li class="option">No options available.</li>
+                <% } %>
+              </ul>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="swiper-slide">No questions available.</div>
+      <% } %>
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
 
 </body>
 </html>
