@@ -46,6 +46,10 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
       },
       {
         role: "system",
+        content: `Make sure the json is like this: quiz: [{question: "", choices: [], answer: ""}]`
+      },
+      {
+        role: "system",
         content: `Here are the notes:\n${notes}`
       }
     ];
@@ -65,7 +69,8 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
 
 
   const generatedQuestions = JSON.parse(completion.choices[0].message.content);
-  res.render('questionStack', { questions: generatedQuestions }); // Render the questions on the questionStack view
+  console.log(generatedQuestions)
+  res.render('questionStack', { questions: generatedQuestions.quiz }); // Render the questions on the questionStack view
 } catch (error) {
   console.error(error);
   res.status(500).send("An error occurred while generating the questions.");
@@ -78,8 +83,8 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
 
 app.get('/questions', (req, res) => {
   const dummyQuestions = [
-    { content: 'What is the capital of France?' },
-    { content: 'What is the largest planet in our solar system?' }
+    { question: 'What is the capital of France?' },
+    { question: 'What is the largest planet in our solar system?' }
   ];
     res.render('questionStack', { questions: dummyQuestions });
   });

@@ -17,10 +17,10 @@
         <% questions.forEach(function(question) { %>
           <div class="swiper-slide">
             <div class="question-card">
-              <p class="question-text"><%= question.content %></p>
+              <p class="question-text"><%= question.question %></p>
               <ul class="options">
-                <% if (question.options && question.options.length > 0) { %>
-                  <% question.options.forEach(function(option) { %>
+                <% if (question.choices && question.choices.length > 0) { %>
+                  <% question.choices.forEach(function(option) { %>
                     <li class="option"><%= option %></li>
                   <% }); %>
                 <% } else { %>
