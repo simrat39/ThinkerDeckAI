@@ -1,23 +1,44 @@
-/* styles.css */
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 50px;
-    background-color: #f4f4f4;
+    font-family: 'Arial', sans-serif;
+    background: url('/images/landingpage.gif') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
+
 .welcome-banner {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     font-size: 2em;
     margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    text-align: center;
 }
+
 .generate-quiz-btn {
     padding: 10px 20px;
-    font-size: 1em;
-    color: white;
-    background-color: #007bff;
+    margin: 10px 0;
+    background-color: #847109; /* Lemon yellow */
     border: none;
-    border-radius: 5px;
+    border-radius: 20px;
+    color: white;
     cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
 }
+
 .generate-quiz-btn:hover {
-    background-color: #0056b3;
+    background-color: #cbae38;
+    transform: translateY(-2px);
+}
+
+/* Ensure focus outline matches the theme */
+.generate-quiz-btn:focus {
+    outline: none;
+    border: 1px solid #504105;
 }
