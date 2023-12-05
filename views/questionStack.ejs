@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Question Cards</title>
+  <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.11/dist/interact.min.js"></script>
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script src="/scripts/questionStack.js"></script>
+  <link rel="stylesheet" href="/style/questionStack.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+</head>
+<body>
+  <div class="swiper-container">
+    <div class="swiper-wrapper">
+      <% if(typeof questions !== 'undefined' && questions.length > 0) { %>
+        <% questions.forEach(function(question) { %>
+          <div class="swiper-slide">
+            <div class="question-card">
+              <p class="question-text"><%= question.question %></p>
+              <ul class="options">
+                <% if (question.choices && question.choices.length > 0) { %>
+                  <% question.choices.forEach(function(option) { %>
+                    <li class="option"><%= option %></li>
+                  <% }); %>
+                <% } else { %>
+                  <li class="option">No options available.</li>
+                <% } %>
+              </ul>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="swiper-slide">No questions available.</div>
+      <% } %>
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+
+</body>
+</html>
