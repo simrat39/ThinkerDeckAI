@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories</title>
+    <!-- Add your CSS link here -->
+</head>
+<body>
+    <h1>Categories</h1>
+    <ul id="categories-list">
+        <% categories.forEach(function(category) { %>
+            <li><a href="/category/<%= category.category_id %>/questions"><%= category.category_name %></a></li>
+        <% }); %>
+    </ul>
+
+    <script src="/scripts/categories.js"></script>
+</body>
+</html>
