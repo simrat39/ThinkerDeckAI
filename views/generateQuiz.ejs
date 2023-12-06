@@ -14,8 +14,17 @@
         <input type="file" id="notes">
         <img src="https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif" alt="" srcset="" id="loading">
         <button type="submit" id="submit">Submit</button>
+        <br>
+        <br>
+        <button type="button" id="see-categories">See Other Categories</button>
     </form>
 
     <script src="/scripts/generateQuiz.js"></script>
+    <script>
+        // When the "See Other Categories" button is clicked
+        document.getElementById('see-categories').addEventListener('click', function() {
+            window.location.href = '/categories'; // Redirect to the categories page
+        });
+    </script>
 </body>
 </html>
