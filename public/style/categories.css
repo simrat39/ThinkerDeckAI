@@ -1,0 +1,57 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: url('/images/lemon_gif.gif') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: rgb(66, 53, 5);
+}
+
+h1 {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+#categories-list {
+    list-style: none;
+    padding: 0;
+}
+
+#categories-list li {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+#categories-list li a {
+    color: #665807; /* Lemon yellow */
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+#categories-list li a:hover {
+    color: #ffce00;
+}
+
+@media (max-width: 600px) {
+    body {
+        justify-content: flex-start;
+        padding-top: 40px;
+    }
+
+    h1 {
+        text-align: center;
+    }
+}
