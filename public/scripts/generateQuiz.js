@@ -29,7 +29,7 @@ document.getElementById("submit").addEventListener("click", async (e) => {
     );
   }, 1000);
 });
-
+ 
 // document.addEventListener('DOMContentLoaded', () => {
 //   document.querySelectorAll('.option').forEach((option) => {
 //       option.addEventListener('click', (event) => {
