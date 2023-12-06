@@ -36,7 +36,7 @@ h1 {
 }
 
 #categories-list li a {
-    color: #665807; /* Lemon yellow */
+    color: #665807; 
     text-decoration: none;
     transition: color 0.3s;
 }
