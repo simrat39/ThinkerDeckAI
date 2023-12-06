@@ -42,15 +42,11 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
         content: `Example format:
         Question: This legendary boxer was originally named Cassius Clay.
         Options: A) Joe Frazier, B) Sugar Ray Leonard, C) Muhammad Ali, D) George Foreman
-        Answer: C`,
+        Answer: C`
       },
       {
         role: "system",
-        content: `Make sure the json is like this: quiz: [{question: "", choices: [], answer: ""}]`,
-      },
-      {
-        role: "system",
-        content: `Please only valid json output, DO NOT SAY ANYTHING ELSE, only json`,
+        content: `Make sure the json is like this: quiz: [{question: "", choices: [], answer: ""}]`
       },
       {
         role: "system",
