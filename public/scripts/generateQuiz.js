@@ -27,5 +27,5 @@ document.getElementById("submit").addEventListener("click", async (e) => {
         cancelable: true,
       })
     );
-  });
+  }, 500);
 });
