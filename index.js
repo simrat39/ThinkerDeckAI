@@ -2,23 +2,23 @@ const express = require("express");
 const multer = require("multer");
 const openai = require("openai");
 const path = require("path");
-const mysql = require('mysql2');
+const mysql = require("mysql2");
+
+require("dotenv").config();
 
 // connection to the database
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Stuccosong88',
-  database: 'generative_ai'
+  host: "localhost",
+  user: "root",
+  password: process.env.DB_PW,
+  database: "generative_ai",
 });
 
 // Connect to MySQL
-connection.connect(err => {
+connection.connect((err) => {
   if (err) throw err;
-  console.log('Connected to the MySQL server.');
+  console.log("Connected to the MySQL server.");
 });
-
-require("dotenv").config();
 
 const app = express();
 const upload = multer();
@@ -39,27 +39,85 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
     const num_ques = req.body.num_ques;
 
     // Define the prompt for GPT-4
-    const prompt = `Generate ${num_ques} questions with multiple-choice answers based on the following notes for the subject '${subject}'.`;
+    const messages = [
+      {
+        role: "system",
+        content:
+          "You are a quiz questions creator. Your job is to generate quiz questions based on the inputted notes. Give the answers as well and make it return JSON.",
+      },
+      {
+        role: "user",
+        content: `Generate ${num_ques} questions with multiple-choice answers based on the following notes for the subject '${subject}'.`,
+      },
+      {
+        role: "system",
+        content:
+          "The format for each question should be a clear, concise question followed by four multiple-choice options, with one correct answer marked. Don't say anything else, only valid json output.",
+      },
+      {
+        role: "system",
+        content: `Example format:
+        Question: This legendary boxer was originally named Cassius Clay.
+        Options: A) Joe Frazier, B) Sugar Ray Leonard, C) Muhammad Ali, D) George Foreman
+        Answer: C`,
+      },
+      {
+        role: "system",
+        content: `Make sure the json is like this: quiz: [{question: "", choices: [], answer: ""}]`,
+      },
+      {
+        role: "system",
+        content: `Please only valid json output, DO NOT SAY ANYTHING ELSE, only json`,
+      },
+      {
+        role: "system",
+        content: `Here are the notes:\n${notes}`,
+      },
+    ];
 
     // Call GPT-4 to generate questions
     const completion = await client.chat.completions.create({
       model: "gpt-4",
-      messages: [
-        { role: "system", content: prompt },
-        { role: "system", content: "Here are the notes:\n" + notes }
-      ],
+      messages: messages,
     });
 
     // Parse the returned questions
-    const generatedQuestions = JSON.parse(completion.choices[0].message.content).quiz;
+    const generatedQuestions = JSON.parse(
+      completion.choices[0].message.content
+    ).quiz;
 
-     // Assuming the language is always English!!!
-     const [languages] = await connection.promise().query('SELECT language_id FROM Languages WHERE language_name = ?', ['English']);
-     const languageId = languages[0].language_id;
- 
-     // Get the category ID based on the subject
-     const [categories] = await connection.promise().query('SELECT category_id FROM Categories WHERE category_name = ?', [subject]);
-     const categoryId = categories[0].category_id;
+    // Assuming the language is always English!!!
+    const [languages] = await connection
+      .promise()
+      .query("SELECT language_id FROM Languages WHERE language_name = ?", [
+        "English",
+      ]);
+    const languageId = languages[0].language_id;
+
+    // Get the category ID based on the subject
+    let [categories] = await connection
+      .promise()
+      .query("SELECT category_id FROM Categories WHERE category_name = ?", [
+        subject,
+      ]);
+    if (categories[0] == undefined) {
+      await connection
+        .promise()
+        .query(
+          "INSERT into Categories (language_id, category_name) VALUES (?, ?)",
+          [1, subject]
+        );
+
+      categories = (
+        await connection
+          .promise()
+          .query("SELECT category_id FROM Categories WHERE category_name = ?", [
+            subject,
+          ])
+      )[0];
+      console.log(categories);
+    }
+    const categoryId = categories[0].category_id;
 
     // Insert the generated questions and options into the database
     for (const questionObj of generatedQuestions) {
@@ -71,20 +129,24 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
       await connection.promise().beginTransaction();
 
       // Insert the question
-      const [questionResult] = await connection.promise().query(
-        'INSERT INTO Questions (category_id, language_id, question_text) VALUES (?, ?, ?)',
-        [/* category_id */, /* language_id */, questionText]
-      );
+      const [questionResult] = await connection
+        .promise()
+        .query(
+          "INSERT INTO Questions (category_id, language_id, question_text) VALUES (?, ?, ?)",
+          [categoryId, languageId, questionText]
+        );
 
       const questionId = questionResult.insertId;
 
       // Insert the options
       for (const choice of choices) {
         const isCorrect = choice === correctAnswer;
-        await connection.promise().query(
-          'INSERT INTO Options (question_id, option_text, is_correct) VALUES (?, ?, ?)',
-          [questionId, choice, isCorrect]
-        );
+        await connection
+          .promise()
+          .query(
+            "INSERT INTO Options (question_id, option_text, is_correct) VALUES (?, ?, ?)",
+            [questionId, choice, isCorrect]
+          );
       }
 
       // Commit the transaction
@@ -93,7 +155,6 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
 
     // Render the question stack view with the generated questions
     res.render("questionStack", { questions: generatedQuestions });
-
   } catch (error) {
     // Rollback the transaction in case of an error
     await connection.promise().rollback();
@@ -101,7 +162,6 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
     res.status(500).send("An error occurred while generating the questions.");
   }
 });
-
 
 app.get("/questions", (req, res) => {
   const dummyQuestions = [
@@ -119,39 +179,41 @@ app.get("/generate-quiz", (req, res) => {
   res.render("generateQuiz");
 });
 
-app.get('/categories', (req, res) => {
-  res.render('categories'); 
-});
-
 // Endpoint to display all categories
-app.get('/categories', async (req, res) => {
+app.get("/categories", async (req, res) => {
   try {
-    const [categories] = await connection.promise().query('SELECT * FROM Categories');
-    res.render('categories', { categories }); // Pass the categories to the EJS template
+    const [categories] = await connection
+      .promise()
+      .query("SELECT * FROM Categories");
+    res.render("categories", { categories }); // Pass the categories to the EJS template
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while fetching the categories.");
   }
 });
 
-
 // Endpoint to display questions for a category
-app.get('/category/:category_id/questions', async (req, res) => {
+app.get("/category/:category_id/questions", async (req, res) => {
   const { category_id } = req.params;
   try {
-    const [questions] = await connection.promise().query('SELECT * FROM Questions WHERE category_id = ?', [category_id]);
+    const [questions] = await connection
+      .promise()
+      .query("SELECT * FROM Questions WHERE category_id = ?", [category_id]);
     // Include options for each question
     for (const question of questions) {
-      const [options] = await connection.promise().query('SELECT * FROM Options WHERE question_id = ?', [question.question_id]);
+      const [options] = await connection
+        .promise()
+        .query("SELECT * FROM Options WHERE question_id = ?", [
+          question.question_id,
+        ]);
       question.options = options;
     }
-    res.render('questionsPage', { questions }); // Ensure you have a 'questionsPage.ejs' file in your views directory
+    res.render("questions", { questions }); // Ensure you have a 'questionsPage.ejs' file in your views directory
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while fetching questions.");
   }
 });
-
 
 app.get("/", function (req, res) {
   res.send("Hi from express");
