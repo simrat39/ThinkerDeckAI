@@ -1,6 +1,9 @@
 document.getElementById("submit").addEventListener("click", async (e) => {
   e.preventDefault();
 
+  document.getElementById("submit").style.display = 'none'
+  document.getElementById("loading").style.display = 'block'
+
   const subject = document.getElementById("subject").value;
   const num_ques = document.getElementById("num_ques").value;
   const notes = document.getElementById("notes").files[0];

@@ -9,6 +9,11 @@ body {
     margin: 0;
 }
 
+#loading {
+    display: none;
+    width: 40px;
+}
+
 form {
     display: flex;
     flex-direction: column;
