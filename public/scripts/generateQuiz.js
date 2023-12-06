@@ -29,3 +29,11 @@ document.getElementById("submit").addEventListener("click", async (e) => {
     );
   });
 });
+
+// document.addEventListener('DOMContentLoaded', () => {
+//   document.querySelectorAll('.option').forEach((option) => {
+//       option.addEventListener('click', (event) => {
+//           console.log('Option clicked:', event.target.textContent);
+//       });
+//   });
+// });

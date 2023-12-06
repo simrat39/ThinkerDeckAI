@@ -51,6 +51,19 @@ body {
   transition: background-color 0.3s, transform 0.3s;
 }
 
+.correctAns{
+}
+
+/* Green background for correct answer */
+.green-background {
+  background-color: #86dc3d;
+}
+
+/* Red background for incorrect answer */
+.red-background {
+  background-color: #ff6961;
+}
+
 .option:hover {
   background-color: #ffce00;
   transform: translateY(-2px);

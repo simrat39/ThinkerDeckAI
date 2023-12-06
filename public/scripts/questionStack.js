@@ -16,6 +16,58 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
+    // document.querySelectorAll('.option').forEach((option) => {
+    //     option.addEventListener('click', () => {
+    //         console.log('Option clicked:', option.textContent);
+    //         const isCorrect = option.classList.contains('correctAns');
+    //
+    //         document.querySelectorAll('.option').forEach((opt) => {
+    //             opt.classList.remove('selected', 'green-background', 'red-background');
+    //
+    //             if (opt === option) {
+    //                 opt.classList.add('selected');
+    //
+    //                 if (isCorrect) {
+    //                     opt.classList.add('green-background');
+    //                 } else {
+    //                     opt.classList.add('red-background');
+    //                 }
+    //             } else if (opt.classList.contains('correctAns')) {
+    //                 opt.classList.add('green-background');
+    //             }
+    //         });
+    //     });
+    // });
+
+
+    function handleOptionClick(option, questionId) {
+        console.log(`Option clicked in ${questionId}:`, option.textContent);
+
+        const isCorrect = option.classList.contains('correctAns');
+        const questionContainer = document.getElementById(questionId);
+
+        if (questionContainer) {
+            questionContainer.querySelectorAll('.option').forEach((opt) => {
+                opt.classList.remove('selected', 'green-background', 'red-background');
+
+                if (opt === option) {
+                    opt.classList.add('selected');
+
+                    if (isCorrect) {
+                        opt.classList.add('green-background');
+                    } else {
+                        opt.classList.add('red-background');
+                    }
+                } else if (opt.classList.contains('correctAns')) {
+                    opt.classList.add('green-background');
+                }
+            });
+        }
+
+        // Additional code to handle the selected option
+        // For example, check if it's the correct answer, update UI, etc.
+    }
+
 
     // const cards = Array.from(document.querySelectorAll('.swiper-slide'));
     // let score = 0; 
@@ -93,7 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
         endMessage.querySelector('.restart-button').addEventListener('click', restartQuiz);
     }
 
-     // Function to restart the quiz
+
+    // Function to restart the quiz
      function restartQuiz() {
 
         // Reset score
@@ -111,3 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
         swiper.slideTo(0); // Go back to the first slide
     }
 });
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     document.querySelectorAll('.option').forEach((option) => {
+//         option.addEventListener('click', (event) => {
+//             console.log('Option clicked:', event.target.textContent);
+//         });
+//     });
+// });
