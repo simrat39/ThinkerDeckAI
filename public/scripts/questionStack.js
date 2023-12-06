@@ -1,84 +1,142 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const swiper = new Swiper('.swiper-container', {
-        effect: 'coverflow',
-        grabCursor: true,
-        centeredSlides: true,
-        slidesPerView: 'auto',
-        // coverflowEffect: {
-        //     rotate: 50,
-        //     stretch: 0,
-        //     depth: 100,
-        //     modifier: 1,
-        //     slideShadows: true,
-        // },
-        pagination: {
-            el: '.swiper-pagination',
-        },
+document.addEventListener("DOMContentLoaded", () => {
+  const swiper = new Swiper(".swiper-container", {
+    effect: "coverflow",
+    grabCursor: true,
+    centeredSlides: true,
+    slidesPerView: "auto",
+    // coverflowEffect: {
+    //     rotate: 50,
+    //     stretch: 0,
+    //     depth: 100,
+    //     modifier: 1,
+    //     slideShadows: true,
+    // },
+    pagination: {
+      el: ".swiper-pagination",
+    },
+  });
+
+  // document.querySelectorAll('.option').forEach((option) => {
+  //     option.addEventListener('click', () => {
+  //         console.log('Option clicked:', option.textContent);
+  //         const isCorrect = option.classList.contains('correctAns');
+  //
+  //         document.querySelectorAll('.option').forEach((opt) => {
+  //             opt.classList.remove('selected', 'green-background', 'red-background');
+  //
+  //             if (opt === option) {
+  //                 opt.classList.add('selected');
+  //
+  //                 if (isCorrect) {
+  //                     opt.classList.add('green-background');
+  //                 } else {
+  //                     opt.classList.add('red-background');
+  //                 }
+  //             } else if (opt.classList.contains('correctAns')) {
+  //                 opt.classList.add('green-background');
+  //             }
+  //         });
+  //     });
+  // });
+
+  const options = document.querySelectorAll(".option");
+  console.log(options);
+
+  for (const o of options) {
+    o.addEventListener("click", () => {
+      const questionContainer = o.closest(".question-card");
+      const questionId = questionContainer.id; // Get the question ID
+      handleOptionClick(o, questionId);
     });
+  }
 
+  function handleOptionClick(option, questionId) {
+    console.log(`Option clicked in ${questionId}:`, option.textContent);
 
-    // const cards = Array.from(document.querySelectorAll('.swiper-slide'));
-    // let score = 0; 
+    const isCorrect = option.classList.contains("correctAns");
+    const questionContainer = document.getElementById(questionId);
 
-    // cards.forEach((card, index) => {
+    if (questionContainer) {
+      questionContainer.querySelectorAll(".option").forEach((opt) => {
+        opt.classList.remove("selected", "green-background", "red-background");
 
-    //     interact(card)
-    //     .draggable({
-    //         inertia: true,
-    //         modifiers: [
-    //             interact.modifiers.restrictRect({
-    //                 restriction: 'parent',
-    //                 endOnly: true
-    //             })
-    //         ],
-    //         autoScroll: true,
-    //         onmove: (event) => {
-    //             const { target } = event;
-    //             const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-    //             const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+        if (opt === option) {
+          opt.classList.add("selected");
 
-    //             target.style.transform = `translate(${x}px, ${y}px)`;
-    //             target.setAttribute('data-x', x);
-    //             target.setAttribute('data-y', y);
-    //         },
-    //         onend: (event) => {
-    //             const { target, dx } = event;
-    //             const x = parseFloat(target.getAttribute('data-x')) || 0;
+          if (isCorrect) {
+            opt.classList.add("green-background");
+          } else {
+            opt.classList.add("red-background");
+          }
+        } else if (opt.classList.contains("correctAns")) {
+          opt.classList.add("green-background");
+        }
+      });
+    }
 
-    //             // If swiped right significantly, consider it as correct
-    //             if (dx > 100) {
-    //                 // Increase score for correct answer
-    //                 score++;
-    //                 target.classList.add('correct'); 
-    //             }
-    //             // If swiped left significantly or not a strong right swipe, consider it wrong
-    //             if (dx < -100 || (dx > 0 && dx <= 100)) {
-    //                 target.classList.add('incorrect'); 
-    //             }
+    // Additional code to handle the selected option
+    // For example, check if it's the correct answer, update UI, etc.
+  }
 
+  // const cards = Array.from(document.querySelectorAll('.swiper-slide'));
+  // let score = 0;
 
-    //             target.style.opacity = 0;
-    //             setTimeout(() => {
-    //                 target.remove();
-    //                 // Check if we're at the last card
-    //                 if (index === cards.length - 1) {
-    //                     showEndMessage();
-    //                 }
-    //             }, 500);
+  // cards.forEach((card, index) => {
 
+  //     interact(card)
+  //     .draggable({
+  //         inertia: true,
+  //         modifiers: [
+  //             interact.modifiers.restrictRect({
+  //                 restriction: 'parent',
+  //                 endOnly: true
+  //             })
+  //         ],
+  //         autoScroll: true,
+  //         onmove: (event) => {
+  //             const { target } = event;
+  //             const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+  //             const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-    //             target.setAttribute('data-x', 0);
-    //             target.setAttribute('data-y', 0);
-    //         }
-    //     });
-    // });
+  //             target.style.transform = `translate(${x}px, ${y}px)`;
+  //             target.setAttribute('data-x', x);
+  //             target.setAttribute('data-y', y);
+  //         },
+  //         onend: (event) => {
+  //             const { target, dx } = event;
+  //             const x = parseFloat(target.getAttribute('data-x')) || 0;
 
+  //             // If swiped right significantly, consider it as correct
+  //             if (dx > 100) {
+  //                 // Increase score for correct answer
+  //                 score++;
+  //                 target.classList.add('correct');
+  //             }
+  //             // If swiped left significantly or not a strong right swipe, consider it wrong
+  //             if (dx < -100 || (dx > 0 && dx <= 100)) {
+  //                 target.classList.add('incorrect');
+  //             }
 
-    function showEndMessage() {
-        const endMessage = document.createElement('div');
-        endMessage.classList.add('score-container'); 
+  //             target.style.opacity = 0;
+  //             setTimeout(() => {
+  //                 target.remove();
+  //                 // Check if we're at the last card
+  //                 if (index === cards.length - 1) {
+  //                     showEndMessage();
+  //                 }
+  //             }, 500);
 
-        endMessage.innerHTML = `
+  //             target.setAttribute('data-x', 0);
+  //             target.setAttribute('data-y', 0);
+  //         }
+  //     });
+  // });
+
+  function showEndMessage() {
+    const endMessage = document.createElement("div");
+    endMessage.classList.add("score-container");
+
+    endMessage.innerHTML = `
             <div class="score-card">
                 <h2>Quiz Completed</h2>
                 <p>No more questions available.</p>
@@ -86,28 +144,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="restart-button">Restart Quiz</button> <!-- Add a restart button if needed -->
             </div>`;
 
+    document.body.appendChild(endMessage);
 
-        document.body.appendChild(endMessage);
+    endMessage
+      .querySelector(".restart-button")
+      .addEventListener("click", restartQuiz);
+  }
 
+  // Function to restart the quiz
+  function restartQuiz() {
+    // Reset score
+    score = 0;
 
-        endMessage.querySelector('.restart-button').addEventListener('click', restartQuiz);
-    }
+    // Remove the end message
+    document.querySelector(".score-container").remove();
 
-     // Function to restart the quiz
-     function restartQuiz() {
+    // Reinitialize the cards
 
-        // Reset score
-        score = 0;
-
-        // Remove the end message
-        document.querySelector('.score-container').remove();
-
-        // Reinitialize the cards
-      
-        cards.forEach(card => {
-            swiper.appendSlide(card); // Add the card back to swiper
-            card.style.opacity = 1; 
-        });
-        swiper.slideTo(0); // Go back to the first slide
-    }
+    cards.forEach((card) => {
+      swiper.appendSlide(card); // Add the card back to swiper
+      card.style.opacity = 1;
+    });
+    swiper.slideTo(0); // Go back to the first slide
+  }
 });
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     document.querySelectorAll('.option').forEach((option) => {
+//         option.addEventListener('click', (event) => {
+//             console.log('Option clicked:', event.target.textContent);
+//         });
+//     });
+// });

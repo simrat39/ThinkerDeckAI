@@ -14,14 +14,15 @@
   <div class="swiper-container">
     <div class="swiper-wrapper">
       <% if(typeof questions !== 'undefined' && questions.length > 0) { %>
+        <% let questionCounter = 1; %>
         <% questions.forEach(function(question) { %>
           <div class="swiper-slide">
-            <div class="question-card">
+            <div class="question-card" id="ques<%= questionCounter %>">
               <p class="question-text"><%= question.question %></p>
               <ul class="options">
                 <% if (question.choices && question.choices.length > 0) { %>
                   <% question.choices.forEach(function(option) { %>
-                    <li class="option"><%= option %></li>
+                    <li class="option <%= option === question.answer ? 'correctAns' : '' %>"><%= option %></li>
                   <% }); %>
                 <% } else { %>
                   <li class="option">No options available.</li>
@@ -29,6 +30,7 @@
               </ul>
             </div>
           </div>
+            <% questionCounter++; %>
         <% }); %>
       <% } else { %>
         <div class="swiper-slide">No questions available.</div>
