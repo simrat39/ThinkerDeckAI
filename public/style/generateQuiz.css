@@ -46,7 +46,7 @@ button {
     background-color: #ffd700; /* Lemon yellow */
     border: none;
     border-radius: 20px;
-    color: white;
+    color: rgb(116, 82, 9);
     cursor: pointer;
     transition: background-color 0.3s, transform 0.3s;
 }
