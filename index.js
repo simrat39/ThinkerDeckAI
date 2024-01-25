@@ -1,13 +1,14 @@
-const express = require("express");
-const multer = require("multer");
-const openai = require("openai");
-const path = require("path");
-const mysql = require("mysql2");
+import express from "express";
+import multer from "multer";
+import OpenAI from "openai";
+import path from "path";
+import { createConnection } from "mysql2";
 
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 // connection to the database
-const connection = mysql.createConnection({
+const connection = createConnection({
   host: "localhost",
   user: "root",
   password: process.env.DB_PW,
@@ -22,13 +23,13 @@ connection.connect((err) => {
 
 const app = express();
 const upload = multer();
-const client = new openai.OpenAI({ apiKey: process.env.OPENAI_API });
+const client = new OpenAI({ apiKey: process.env.OPENAI_API });
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(path.resolve(), "views"));
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(path.resolve(), "public")));
 
 app.post("/get_questions", upload.single("notes"), async function (req, res) {
   try {
