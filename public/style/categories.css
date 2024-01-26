@@ -1,18 +1,17 @@
 body {
     font-family: 'Arial', sans-serif;
-    background: url('/images/lemon_gif.gif') no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(rgba(255, 173, 96, 0.85), rgba(255, 126, 95, 0.85));
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    color: rgb(66, 53, 5);
+    color: #501B1D; /* Deep sunset red for text */
 }
 
 h1 {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 204, 153, 0.8); /* Soft sunset peach */
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 20px;
@@ -26,23 +25,23 @@ h1 {
 }
 
 #categories-list li {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 174, 123, 0.5); /* Light sunset orange */
     backdrop-filter: blur(10px);
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 204, 153, 0.6); /* Soft sunset peach border */
 }
 
 #categories-list li a {
-    color: #665807; 
+    color: #FF6B6B; /* Sunset red */
     text-decoration: none;
     transition: color 0.3s;
 }
 
 #categories-list li a:hover {
-    color: #ffce00;
+    color: #FFD56B; /* Sunset yellow */
 }
 
 @media (max-width: 600px) {

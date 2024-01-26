@@ -1,7 +1,6 @@
 body {
   font-family: 'Arial', sans-serif;
-  background: url('/images/lemon_gif.gif') no-repeat center center fixed;
-  background-size: cover;
+  background: linear-gradient(rgba(255, 173, 96, 0.85), rgba(255, 126, 95, 0.85));
   display: flex;
   justify-content: center;
   align-items: center;
@@ -149,15 +148,12 @@ body {
   transition: background-color 0.3s;
 }
 
-
 @media (max-width: 600px) {
   .swiper-container {
       width: 80%;
       height: 80vh;
   }
 }
-
-
 
 .end-message {
   display: flex;
@@ -199,7 +195,6 @@ body {
 .end-message button:hover {
   background-color: #FFC107; 
 }
-
 
 @media (max-width: 600px) {
   .end-message {

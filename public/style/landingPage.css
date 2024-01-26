@@ -1,6 +1,6 @@
 body {
     font-family: 'Arial', sans-serif;
-    background: url('/images/landingpage.gif') no-repeat center center fixed;
+    background: linear-gradient(rgba(255, 173, 96, 0.85), rgba(255, 126, 95, 0.85));
     background-size: cover;
     display: flex;
     justify-content: center;
@@ -9,22 +9,24 @@ body {
     margin: 0;
 }
 
+
 .welcome-banner {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 204, 153, 0.8); /* Soft sunset peach */
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     font-size: 2em;
     margin-bottom: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 174, 123, 0.6); /* Slightly darker border */
     text-align: center;
+    color: #501B1D; /* Deep sunset red for text */
 }
 
 .generate-quiz-btn {
     padding: 10px 20px;
     margin: 10px 0;
-    background-color: #847109; /* Lemon yellow */
+    background-color: #FF6B6B; /* Sunset red */
     border: none;
     border-radius: 20px;
     color: white;
@@ -33,12 +35,12 @@ body {
 }
 
 .generate-quiz-btn:hover {
-    background-color: #cbae38;
+    background-color: #FFD56B; /* Sunset yellow */
     transform: translateY(-2px);
 }
 
 /* Ensure focus outline matches the theme */
 .generate-quiz-btn:focus {
     outline: none;
-    border: 1px solid #504105;
+    border: 1px solid #FF9276; /* Sunset orange */
 }
