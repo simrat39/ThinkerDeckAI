@@ -1,9 +1,9 @@
 USE generative_ai;
 
 -- Table structure for table accounts
-DROP TABLE IF EXISTS accounts;
-CREATE TABLE accounts (
-    username varchar(16) NOT NULL,
+DROP TABLE IF EXISTS Accounts;
+CREATE TABLE Accounts (
+    username varchar(16) NOT NULL PRIMARY KEY,
     password varchar(256) NOT NULL
 );
 

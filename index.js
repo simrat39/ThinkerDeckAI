@@ -2,10 +2,16 @@ import express from "express";
 import multer from "multer";
 import OpenAI from "openai";
 import path from "path";
+import passport from "passport";
+import LocalStrategy from "passport-local";
+import session from "express-session";
 import { createConnection } from "mysql2";
+import sqliteStore from "connect-sqlite3";
 
 import dotenv from "dotenv";
 dotenv.config();
+
+let SQLiteStore = sqliteStore(session);
 
 // connection to the database
 const connection = createConnection({
@@ -29,7 +35,103 @@ app.set("view engine", "ejs");
 app.set("views", path.join(path.resolve(), "views"));
 
 app.use(express.json());
+app.use(express.urlencoded());
 app.use(express.static(path.join(path.resolve(), "public")));
+
+let strat = new LocalStrategy(async function verify(username, password, cb) {
+  const sqlRet = await connection
+    .promise()
+    .query("SELECT * FROM Accounts WHERE username = ?", [username]);
+
+  if (!sqlRet || sqlRet.length <= 1 || sqlRet[0].length == 0) {
+    return cb(null, false, { message: "Incorrect username or password." });
+  }
+
+  const user = sqlRet[0][0];
+
+  if (user.password == password) {
+    return cb(null, user);
+  }
+
+  return cb(null, false, { message: "Incorect username or password." });
+});
+
+passport.use(strat);
+
+app.use(passport.initialize());
+
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: false,
+    store: new SQLiteStore({ db: "sessions.db", dir: "." }),
+  })
+);
+
+app.use(passport.authenticate("session"));
+
+passport.serializeUser(function (user, cb) {
+  process.nextTick(function () {
+    cb(null, { id: user.id, username: user.username });
+  });
+});
+
+passport.deserializeUser(function (user, cb) {
+  process.nextTick(function () {
+    return cb(null, user);
+  });
+});
+
+app.post(
+  "/login/password",
+  passport.authenticate(strat, {
+    successRedirect: "/",
+    failureMessage: "TMKC",
+  })
+);
+
+app.post("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
+app.get("/signin", function (req, res) {
+  res.render("signin");
+  return;
+});
+
+app.get("/signup", function (req, res, next) {
+  res.render("signup");
+  return;
+});
+
+app.post("/signup", async function (req, res, next) {
+  connection
+    .promise()
+    .query("INSERT INTO Accounts (username, password) VALUES (?, ?)", [
+      req.body.username,
+      req.body.password,
+    ])
+    .then(() => {
+      let user = {
+        id: req.body.username,
+        username: req.body.username,
+      };
+      req.login(user, function (err) {
+        if (err) {
+          return next(err);
+        }
+        res.redirect("/");
+      });
+    }).catch(() => {
+      res.redirect("/signup")
+    });
+});
 
 app.post("/get_questions", upload.single("notes"), async function (req, res) {
   try {
@@ -60,11 +162,11 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
         content: `Example format:
         Question: This legendary boxer was originally named Cassius Clay.
         Options: A) Joe Frazier, B) Sugar Ray Leonard, C) Muhammad Ali, D) George Foreman
-        Answer: C`
+        Answer: C`,
       },
       {
         role: "system",
-        content: `Make sure the json is like this: quiz: [{question: "", choices: [], answer: ""}]`
+        content: `Make sure the json is like this: quiz: [{question: "", choices: [], answer: ""}]`,
       },
       {
         role: "system",
