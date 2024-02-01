@@ -23,32 +23,36 @@ connection.connect((err) => {
 
 const app = express();
 const upload = multer();
-const client = new OpenAI({ apiKey: process.env.OPENAI_API });
+const gptClient = new OpenAI({ apiKey: process.env.GPT_API_KEY });
+const dalleClient = new OpenAI({ apiKey: process.env.DALLE_API_KEY });
 
 app.set("view engine", "ejs");
 app.set("views", path.join(path.resolve(), "views"));
 
-app.use(express.json());
+//app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
 
-app.post("/get_questions", upload.single("notes"), async function (req, res) {
+// app.post("/get_questions", upload.single("notes"), async function (req, res) {
+  app.post("/get_questions", upload.none(), async function (req, res) {
   try {
     // Extract data from the request
-    const notesFile = req.file;
-    const notes = notesFile.buffer.toString();
+    // const notesFile = req.file;
+    // const notes = notesFile.buffer.toString();
     const subject = req.body.subject;
     const num_ques = req.body.num_ques;
+    console.log("subject: " + subject);
 
     // Define the prompt for GPT-4
     const messages = [
       {
         role: "system",
         content:
-          "You are a quiz questions creator. Your job is to generate quiz questions based on the inputted notes. Give the answers as well and make it return JSON.",
+          "You are a quiz questions creator. Your job is to generate quiz questions based on the inputted topic. Give the answers as well and make it return JSON.",
       },
       {
         role: "user",
-        content: `Generate ${num_ques} questions with multiple-choice answers based on the following notes for the subject '${subject}'.`,
+        content: `Generate ${num_ques} questions with multiple-choice answers based on the topic: '${subject}'.`,
       },
       {
         role: "system",
@@ -72,15 +76,18 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
       },
       {
         role: "system",
-        content: `Here are the notes:\n${notes}`,
+        content: `Here is the topic:\n${subject}`,
       },
     ];
 
     // Call GPT-4 to generate questions
-    const completion = await client.chat.completions.create({
+    const completion = await gptClient.chat.completions.create({
       model: "gpt-4",
       messages: messages,
     });
+
+    // Log the GPT-4 completion content
+    console.log("GPT-4 Completion Content:", completion.choices[0].message.content);
 
     // Parse the returned questions
     const generatedQuestions = JSON.parse(
