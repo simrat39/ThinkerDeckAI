@@ -1,31 +1,14 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import multer from "multer";
 import OpenAI from "openai";
 import path from "path";
-import passport from "passport";
-import LocalStrategy from "passport-local";
-import session from "express-session";
-import { createConnection } from "mysql2";
-import sqliteStore from "connect-sqlite3";
+import authRouter from "./routes/auth.js"
+import DatabaseConnection from "./database_connection.js"
 
-import dotenv from "dotenv";
-dotenv.config();
-
-let SQLiteStore = sqliteStore(session);
-
-// connection to the database
-const connection = createConnection({
-  host: "localhost",
-  user: "root",
-  password: process.env.DB_PW,
-  database: "generative_ai",
-});
-
-// Connect to MySQL
-connection.connect((err) => {
-  if (err) throw err;
-  console.log("Connected to the MySQL server.");
-});
+const connection = new DatabaseConnection()
 
 const app = express();
 const upload = multer();
@@ -38,100 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.static(path.join(path.resolve(), "public")));
 
-let strat = new LocalStrategy(async function verify(username, password, cb) {
-  const sqlRet = await connection
-    .promise()
-    .query("SELECT * FROM Accounts WHERE username = ?", [username]);
-
-  if (!sqlRet || sqlRet.length <= 1 || sqlRet[0].length == 0) {
-    return cb(null, false, { message: "Incorrect username or password." });
-  }
-
-  const user = sqlRet[0][0];
-
-  if (user.password == password) {
-    return cb(null, user);
-  }
-
-  return cb(null, false, { message: "Incorect username or password." });
-});
-
-passport.use(strat);
-
-app.use(passport.initialize());
-
-app.use(
-  session({
-    secret: "keyboard cat",
-    resave: false,
-    saveUninitialized: false,
-    store: new SQLiteStore({ db: "sessions.db", dir: "." }),
-  })
-);
-
-app.use(passport.authenticate("session"));
-
-passport.serializeUser(function (user, cb) {
-  process.nextTick(function () {
-    cb(null, { id: user.id, username: user.username });
-  });
-});
-
-passport.deserializeUser(function (user, cb) {
-  process.nextTick(function () {
-    return cb(null, user);
-  });
-});
-
-app.post(
-  "/login/password",
-  passport.authenticate(strat, {
-    successRedirect: "/",
-    failureMessage: "TMKC",
-  })
-);
-
-app.post("/logout", function (req, res, next) {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/");
-  });
-});
-
-app.get("/signin", function (req, res) {
-  res.render("signin");
-  return;
-});
-
-app.get("/signup", function (req, res, next) {
-  res.render("signup");
-  return;
-});
-
-app.post("/signup", async function (req, res, next) {
-  connection
-    .promise()
-    .query("INSERT INTO Accounts (username, password) VALUES (?, ?)", [
-      req.body.username,
-      req.body.password,
-    ])
-    .then(() => {
-      let user = {
-        id: req.body.username,
-        username: req.body.username,
-      };
-      req.login(user, function (err) {
-        if (err) {
-          return next(err);
-        }
-        res.redirect("/");
-      });
-    }).catch(() => {
-      res.redirect("/signup")
-    });
-});
+app.use("/", authRouter)
 
 app.post("/get_questions", upload.single("notes"), async function (req, res) {
   try {
