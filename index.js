@@ -52,7 +52,7 @@ app.use(express.static(path.join(path.resolve(), "public")));
       },
       {
         role: "user",
-        content: `Generate ${num_ques} questions with multiple-choice answers based on the topic: '${subject}'.`,
+        content: `Generate ${num_ques} questions with multiple-choice answers based on the topic: '${subject}'. Each question should be different.`,
       },
       {
         role: "system",
