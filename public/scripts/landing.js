@@ -11,3 +11,7 @@ document.getElementById("logout")?.addEventListener("click", () => {
 document.getElementById("login")?.addEventListener("click", () => {
   location.href = "/signin";
 });
+
+document.getElementById("signup")?.addEventListener("click", () => {
+  location.href = "/signup";
+});
