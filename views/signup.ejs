@@ -1,12 +1,36 @@
-<h1>Sign up</h1>
-<form action="/signup" method="post">
-    <section>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignUp</title>
+
+    <link rel="stylesheet" href="/style/signout.css" />
+  </head>
+  <body>
+    <h1 id="login_banner">Sign up</h1>
+    <form action="/signup" method="post">
+      <section>
         <label for="username">Username</label>
-        <input id="username" name="username" type="text" autocomplete="username" required>
-    </section>
-    <section>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          autocomplete="username"
+          required
+        />
+      </section>
+      <section>
         <label for="new-password">Password</label>
-        <input id="new-password" name="password" type="password" autocomplete="new-password" required>
-    </section>
-    <button type="submit">Sign up</button>
-</form>
+        <input
+          id="new-password"
+          name="password"
+          type="password"
+          autocomplete="new-password"
+          required
+        />
+      </section>
+      <button type="submit">Sign up</button>
+    </form>
+  </body>
+</html>

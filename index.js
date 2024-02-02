@@ -7,6 +7,7 @@ import OpenAI from "openai";
 import path from "path";
 import authRouter from "./routes/auth.js"
 import DatabaseConnection from "./database_connection.js"
+import logged_in_check from "./middleware/logged_in_check_middleware.js";
 
 const connection = new DatabaseConnection()
 
@@ -23,7 +24,7 @@ app.use(express.static(path.join(path.resolve(), "public")));
 
 app.use("/", authRouter)
 
-app.post("/get_questions", upload.single("notes"), async function (req, res) {
+app.post("/get_questions", logged_in_check, upload.single("notes"), async function (req, res) {
   try {
     // Extract data from the request
     const notesFile = req.file;
@@ -156,7 +157,7 @@ app.post("/get_questions", upload.single("notes"), async function (req, res) {
   }
 });
 
-app.get("/questions", (req, res) => {
+app.get("/questions", logged_in_check, (req, res) => {
   const dummyQuestions = [
     { question: "What is the capital of France?" },
     { question: "What is the largest planet in our solar system?" },
@@ -165,15 +166,16 @@ app.get("/questions", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.render("landingPage");
+  console.log(!!req.user)
+  res.render("landingPage", {loggedIn: !!req.user});
 });
 
-app.get("/generate-quiz", (req, res) => {
+app.get("/generate-quiz", logged_in_check, (req, res) => {
   res.render("generateQuiz");
 });
 
 // Endpoint to display all categories
-app.get("/categories", async (req, res) => {
+app.get("/categories", logged_in_check, async (req, res) => {
   try {
     const [categories] = await connection
       .promise()
@@ -186,7 +188,7 @@ app.get("/categories", async (req, res) => {
 });
 
 // Endpoint to display questions for a category
-app.get("/category/:category_id/questions", async (req, res) => {
+app.get("/category/:category_id/questions", logged_in_check, async (req, res) => {
   const { category_id } = req.params;
   try {
     const [questions] = await connection
@@ -206,10 +208,6 @@ app.get("/category/:category_id/questions", async (req, res) => {
     console.error(error);
     res.status(500).send("An error occurred while fetching questions.");
   }
-});
-
-app.get("/", function (req, res) {
-  res.send("Hi from express");
 });
 
 const port = 8000;

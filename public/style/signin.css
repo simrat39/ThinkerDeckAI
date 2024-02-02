@@ -1,0 +1,78 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: url('/images/lemon_gif.gif') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+}
+
+#login_banner {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-size: 2em;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="file"] {
+    width: calc(100% - 20px); /* Subtract padding */
+    padding: 10px;
+    margin: 10px 0;
+    background: rgba(255, 255, 224, 0.3); /* Light yellow, translucent */
+    border: 1px solid rgba(255, 255, 0, 0.6);
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px 0;
+    background-color: #ffd700; /* Lemon yellow */
+    border: none;
+    border-radius: 20px;
+    color: rgb(116, 82, 9);
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover {
+    background-color: #ffce00;
+    transform: translateY(-2px);
+}
+
+input:focus, button:focus {
+    outline: none;
+    border: 1px solid #ffce00;
+}
+
+@media (max-width: 600px) {
+    form {
+        width: 80%;
+        padding: 20px;
+    }
+}
