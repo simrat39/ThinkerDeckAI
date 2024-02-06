@@ -1,98 +1,39 @@
-import express from "express";
-import multer from "multer";
-import OpenAI from "openai";
-import path from "path";
-import { createConnection } from "mysql2";
-
 import dotenv from "dotenv";
 dotenv.config();
 
-// connection to the database
-const connection = createConnection({
-  host: "localhost",
-  user: "root",
-  password: process.env.DB_PW,
-  database: "generative_ai",
-});
+import express from "express";
+import multer from "multer";
+import path from "path";
+import authRouter from "./routes/auth.js"
+import DatabaseConnection from "./utilities/database_connection.js"
+import logged_in_check from "./utilities/logged_in_check_middleware.js";
+import generateImages from "./utilities/dalleClient.js";
+import generateQues from "./utilities/gptClient.js";
 
-// Connect to MySQL
-connection.connect((err) => {
-  if (err) throw err;
-  console.log("Connected to the MySQL server.");
-});
+const connection = new DatabaseConnection()
 
 const app = express();
 const upload = multer();
-const gptClient = new OpenAI({ apiKey: process.env.GPT_API_KEY });
-const dalleClient = new OpenAI({ apiKey: process.env.DALLE_API_KEY });
 
 app.set("view engine", "ejs");
 app.set("views", path.join(path.resolve(), "views"));
 
-//app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
 
-// app.post("/get_questions", upload.single("notes"), async function (req, res) {
-  app.post("/get_questions", upload.none(), async function (req, res) {
+app.use("/", authRouter);
+
+  app.post("/get_questions", logged_in_check, upload.none(), async function (req, res) {
   try {
     // Extract data from the request
-    // const notesFile = req.file;
-    // const notes = notesFile.buffer.toString();
     const subject = req.body.subject;
     const num_ques = req.body.num_ques;
-    console.log("subject: " + subject);
 
-    // Define the prompt for GPT-4
-    const messages = [
-      {
-        role: "system",
-        content:
-          "You are a quiz questions creator. Your job is to generate quiz questions based on the inputted topic. Give the answers as well and make it return JSON.",
-      },
-      {
-        role: "user",
-        content: `Generate ${num_ques} questions with multiple-choice answers based on the topic: '${subject}'. Each question should be different.`,
-      },
-      {
-        role: "system",
-        content:
-          "The format for each question should be a clear, concise question followed by four multiple-choice options, with one correct answer marked. Don't say anything else, only valid json output.",
-      },
-      {
-        role: "system",
-        content: `Example format:
-        Question: This legendary boxer was originally named Cassius Clay.
-        Options: A) Joe Frazier, B) Sugar Ray Leonard, C) Muhammad Ali, D) George Foreman
-        Answer: C`
-      },
-      {
-        role: "system",
-        content: `Make sure the json is like this: quiz: [{question: "", choices: [], answer: ""}]`
-      },
-      {
-        role: "system",
-        content: `Please only valid json output, DO NOT SAY ANYTHING ELSE, only json`,
-      },
-      {
-        role: "system",
-        content: `Here is the topic:\n${subject}`,
-      },
-    ];
+    // Generate questions through GPT-4 
+    const generatedQuestions = await generateQues(subject, num_ques);
 
-    // Call GPT-4 to generate questions
-    const completion = await gptClient.chat.completions.create({
-      model: "gpt-4",
-      messages: messages,
-    });
-
-    // Log the GPT-4 completion content
-    console.log("GPT-4 Completion Content:", completion.choices[0].message.content);
-
-    // Parse the returned questions
-    const generatedQuestions = JSON.parse(
-      completion.choices[0].message.content
-    ).quiz;
+    // Generate images through DALL-E 2
+    const generatedImages = await generateImages(generatedQuestions);
 
     // Assuming the language is always English!!!
     const [languages] = await connection
@@ -171,7 +112,7 @@ app.use(express.static(path.join(path.resolve(), "public")));
   }
 });
 
-app.get("/questions", (req, res) => {
+app.get("/questions", logged_in_check, (req, res) => {
   const dummyQuestions = [
     { question: "What is the capital of France?" },
     { question: "What is the largest planet in our solar system?" },
@@ -180,15 +121,16 @@ app.get("/questions", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.render("landingPage");
+  console.log(!!req.user)
+  res.render("landingPage", {loggedIn: !!req.user});
 });
 
-app.get("/generate-quiz", (req, res) => {
+app.get("/generate-quiz", logged_in_check, (req, res) => {
   res.render("generateQuiz");
 });
 
 // Endpoint to display all categories
-app.get("/categories", async (req, res) => {
+app.get("/categories", logged_in_check, async (req, res) => {
   try {
     const [categories] = await connection
       .promise()
@@ -201,7 +143,7 @@ app.get("/categories", async (req, res) => {
 });
 
 // Endpoint to display questions for a category
-app.get("/category/:category_id/questions", async (req, res) => {
+app.get("/category/:category_id/questions", logged_in_check, async (req, res) => {
   const { category_id } = req.params;
   try {
     const [questions] = await connection
@@ -221,10 +163,6 @@ app.get("/category/:category_id/questions", async (req, res) => {
     console.error(error);
     res.status(500).send("An error occurred while fetching questions.");
   }
-});
-
-app.get("/", function (req, res) {
-  res.send("Hi from express");
 });
 
 const port = 8000;

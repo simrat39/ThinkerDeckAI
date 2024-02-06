@@ -131,3 +131,5 @@ dist
 
 # Environment file
 .env
+
+sessions.db

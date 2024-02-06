@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to ThinkerDeck AI</title>
-    <link rel="stylesheet" href="/style/landingPage.css">
-</head>
-<body>
-    <div class="welcome-banner">
-        Welcome to ThinkerDeck AI
+    <link rel="stylesheet" href="/style/landingPage.css" />
+  </head>
+  <body>
+    <div class="welcome-banner">Welcome to ThinkerDeck AI</div>
+    <div id="buttons_container">
+      <button
+        class="generate-quiz-btn"
+        onclick="location.href='/generate-quiz'"
+      >
+        Generate a Quiz
+      </button>
+
+      <% if (loggedIn) { %>
+      <button id="logout" class="generate-quiz-btn">Logout</button>
+      <% } else { %>
+      <button id="login" class="generate-quiz-btn">Login</button>
+      <button id="signup" class="generate-quiz-btn">Signup</button>
+      <% } %>
     </div>
-    <button class="generate-quiz-btn" onclick="location.href='/generate-quiz'">Start Quizzing!</button>
-</body>
+    <script src="/scripts/landing.js"></script>
+  </body>
 </html>
