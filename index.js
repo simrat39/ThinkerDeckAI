@@ -25,9 +25,19 @@ app.use("/", authRouter);
 
   app.post("/get_questions", logged_in_check, upload.none(), async function (req, res) {
   try {
-    // Extract data from the request
+    // Extract data from the request 
     const subject = req.body.subject;
     const num_ques = req.body.num_ques;
+
+    if (subject == "" || num_ques == "") {
+      res.send(`
+        <script>
+            alert("Form fields cannot be empty.");
+            window.location.reload();
+        </script>
+    `);
+    return;
+    }
 
     // Generate questions through GPT-4 
     const generatedQuestions = await generateQues(subject, num_ques);
