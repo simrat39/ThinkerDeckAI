@@ -3,82 +3,47 @@ dotenv.config();
 
 import express from "express";
 import multer from "multer";
-import OpenAI from "openai";
 import path from "path";
 import authRouter from "./routes/auth.js"
-import DatabaseConnection from "./database_connection.js"
-import logged_in_check from "./middleware/logged_in_check_middleware.js";
+import DatabaseConnection from "./utilities/database_connection.js"
+import logged_in_check from "./utilities/logged_in_check_middleware.js";
+import generateImages from "./utilities/dalleClient.js";
+import generateQues from "./utilities/gptClient.js";
 
 const connection = new DatabaseConnection()
 
 const app = express();
 const upload = multer();
-const client = new OpenAI({ apiKey: process.env.OPENAI_API });
 
 app.set("view engine", "ejs");
 app.set("views", path.join(path.resolve(), "views"));
 
-app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
 
-app.use("/", authRouter)
+app.use("/", authRouter);
 
-app.post("/get_questions", logged_in_check, upload.single("notes"), async function (req, res) {
+  app.post("/get_questions", logged_in_check, upload.none(), async function (req, res) {
   try {
-    // Extract data from the request
-    const notesFile = req.file;
-    const notes = notesFile.buffer.toString();
+    // Extract data from the request 
     const subject = req.body.subject;
     const num_ques = req.body.num_ques;
 
-    // Define the prompt for GPT-4
-    const messages = [
-      {
-        role: "system",
-        content:
-          "You are a quiz questions creator. Your job is to generate quiz questions based on the inputted notes. Give the answers as well and make it return JSON.",
-      },
-      {
-        role: "user",
-        content: `Generate ${num_ques} questions with multiple-choice answers based on the following notes for the subject '${subject}'.`,
-      },
-      {
-        role: "system",
-        content:
-          "The format for each question should be a clear, concise question followed by four multiple-choice options, with one correct answer marked. Don't say anything else, only valid json output.",
-      },
-      {
-        role: "system",
-        content: `Example format:
-        Question: This legendary boxer was originally named Cassius Clay.
-        Options: A) Joe Frazier, B) Sugar Ray Leonard, C) Muhammad Ali, D) George Foreman
-        Answer: C`,
-      },
-      {
-        role: "system",
-        content: `Make sure the json is like this: quiz: [{question: "", choices: [], answer: ""}]`,
-      },
-      {
-        role: "system",
-        content: `Please only valid json output, DO NOT SAY ANYTHING ELSE, only json`,
-      },
-      {
-        role: "system",
-        content: `Here are the notes:\n${notes}`,
-      },
-    ];
+    if (subject == "" || num_ques == "") {
+      res.send(`
+        <script>
+            alert("Form fields cannot be empty.");
+            window.location.reload();
+        </script>
+    `);
+    return;
+    }
 
-    // Call GPT-4 to generate questions
-    const completion = await client.chat.completions.create({
-      model: "gpt-4",
-      messages: messages,
-    });
+    // Generate questions through GPT-4 
+    const generatedQuestions = await generateQues(subject, num_ques);
 
-    // Parse the returned questions
-    const generatedQuestions = JSON.parse(
-      completion.choices[0].message.content
-    ).quiz;
+    // Generate images through DALL-E 2
+    const generatedImages = await generateImages(generatedQuestions);
 
     // Assuming the language is always English!!!
     const [languages] = await connection

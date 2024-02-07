@@ -3,7 +3,7 @@ import passport from "passport";
 import LocalStrategy from "passport-local";
 import session from "express-session";
 import sqliteStore from "connect-sqlite3";
-import DatabaseConnection from "../database_connection.js"
+import DatabaseConnection from "../utilities/database_connection.js"
 
 const connection = new DatabaseConnection()
 
