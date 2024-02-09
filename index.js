@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import express from "express";
 import multer from "multer";
 import path from "path";
@@ -11,16 +8,13 @@ import generateImages from "./utilities/dalleClient.js";
 import generateQues from "./utilities/gptClient.js";
 
 const connection = new DatabaseConnection()
-
 const app = express();
 const upload = multer();
 
 app.set("view engine", "ejs");
 app.set("views", path.join(path.resolve(), "views"));
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
-
 app.use("/", authRouter);
 
   app.post("/get_questions", logged_in_check, upload.none(), async function (req, res) {
@@ -29,6 +23,7 @@ app.use("/", authRouter);
     const subject = req.body.subject;
     const num_ques = req.body.num_ques;
 
+    // validate input parameters
     if (subject == "" || num_ques == "") {
       res.send(`
         <script>
@@ -44,6 +39,11 @@ app.use("/", authRouter);
 
     // Generate images through DALL-E 2
     const generatedImages = await generateImages(generatedQuestions);
+
+    // append image URLS to respective questions
+    for (let i = 0; i < generatedQuestions.length; i++) {
+      generatedQuestions[i].image = generatedImages[i];
+    }
 
     // Assuming the language is always English!!!
     const [languages] = await connection
