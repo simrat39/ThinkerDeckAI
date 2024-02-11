@@ -2,62 +2,69 @@ import { Router } from "express";
 import passport from "passport";
 import LocalStrategy from "passport-local";
 import session from "express-session";
-import sqliteStore from "connect-sqlite3";
-import DatabaseConnection from "../utilities/database_connection.js"
+import MongoDBStore from "connect-mongodb-session";
+import DatabaseClient from "../utilities/databaseClient.js";
 
-const connection = new DatabaseConnection()
-
+const connection = new DatabaseClient();
 const router = Router()
-let SQLiteStore = sqliteStore(session);
 
-let strat = new LocalStrategy(async function verify(username, password, cb) {
-  const sqlRet = await connection
-    .promise()
-    .query("SELECT * FROM Accounts WHERE username = ?", [username]);
-
-  if (!sqlRet || sqlRet.length <= 1 || sqlRet[0].length == 0) {
-    return cb(null, false, { message: "Incorrect username or password." });
-  }
-
-  const user = sqlRet[0][0];
-
-  if (user.password == password) {
-    return cb(null, user);
-  }
-
-  return cb(null, false, { message: "Incorect username or password." });
+// Setup mongo store
+let mongoSessionStore = new MongoDBStore(session);
+const mongoStore = new mongoSessionStore({
+  uri: `mongodb+srv://gurtejmalik:${process.env.MONGO_KEY}@generativeai.qqdsbwh.mongodb.net`,
+  collection: "sessions",
 });
 
-passport.use(strat);
+mongoStore.on('error', (error) => {
+  console.log("Session store error: " + error);
+});
 
+// Passport Local Strategy for authentication
+let strategy = new LocalStrategy(async function(username, password, done) {
+  try {
+      const user = await connection.models.User.findOne({ username });
+      if (!user || user.password !== password) {
+          return done(null, false, { message: 'Incorrect username or password.' });
+      }
+      return done(null, user);
+  } catch (error) {
+      return done(error);
+  }
+});
+passport.use(strategy);
+
+// Serialization and deserialization of user
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async function(id, done) {
+  try {
+      const user = await connection.models.User.findById(id);
+      if (!user) {
+          return done(null, false);
+      }
+      return done(null, user);
+  } catch (error) {
+      return done(error);
+  }
+});
+
+// Initialize passport and session middleware
 router.use(passport.initialize());
-
 router.use(
   session({
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: false,
-    store: new SQLiteStore({ db: "sessions.db", dir: "." }),
+    store: mongoStore,
   })
 );
-
 router.use(passport.authenticate("session"));
-
-passport.serializeUser(function (user, cb) {
-  process.nextTick(function () {
-    cb(null, { id: user.id, username: user.username });
-  });
-});
-
-passport.deserializeUser(function (user, cb) {
-  process.nextTick(function () {
-    return cb(null, user);
-  });
-});
 
 router.post(
   "/login/password",
-  passport.authenticate(strat, {
+  passport.authenticate(strategy, {
     successRedirect: "/",
     failureRedirect: "/signin",
   })
@@ -77,32 +84,33 @@ router.get("/signin", function (req, res) {
   return;
 });
 
-router.get("/signup", function (req, res, next) {
+router.get("/signup", function (req, res) {
   res.render("signup");
   return;
 });
 
-router.post("/signup", async function (req, res, next) {
-  connection
-    .promise()
-    .query("INSERT INTO Accounts (username, password) VALUES (?, ?)", [
-      req.body.username,
-      req.body.password,
-    ])
-    .then(() => {
-      let user = {
-        id: req.body.username,
-        username: req.body.username,
-      };
-      req.login(user, function (err) {
-        if (err) {
-          return next(err);
-        }
-        res.redirect("/");
-      });
-    }).catch(() => {
-      res.redirect("/signup")
-    });
+router.post('/signup', async function(req, res) {
+  try {
+      const User = connection.models.User;
+
+        // Creating a new user document
+        const newUser = new User({
+            username: req.body.username,
+            password: req.body.password
+        });
+        await newUser.save();
+
+        // Logging in the new user
+        req.login(newUser, function(err) {
+            if (err) { 
+                return next(err); 
+            }
+            res.redirect('/');
+        });
+  } catch (error) {
+      console.error('Error signing up:', error);
+      res.redirect('/signup');
+  }
 });
 
 router.post('/logout', function(req, res, next) {
