@@ -3,25 +3,12 @@ import mongoose from 'mongoose';
 import dotenv from "dotenv";
 dotenv.config();
 
-// Schema
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: true
-    }
-});
-const User = mongoose.model('user', userSchema);
-
 /**
  * Database client class to connect to MongoDB.
  * Follows singleton design pattern.
  */
 class DatabaseClient {
+
     constructor() {
       if (!DatabaseClient.instance) {
         // Connect to MongoDB
@@ -35,12 +22,45 @@ class DatabaseClient {
             console.error('Error connecting to MongoDB:', err);
         })
 
+        this.models = {};
+        this.createSchemas();
         DatabaseClient.instance = mongoose.connection;
       }
       return DatabaseClient.instance;
     }
     
-    // Properties & Methods
+    /**
+     * Method to create schemas and models for the DB.
+     * Models are created as members of the databaseClient object.
+     */
+    createSchemas() {
+        // user schema
+        const userSchema = new mongoose.Schema({
+            username: {
+                type: String,
+                required: true,
+                unique: true
+            },
+            password: {
+                type: String,
+                required: true
+            }
+        });
+        this.models.User = mongoose.model('user', userSchema);
+
+        // quiz schema
+        const quizSchema = new mongoose.Schema({
+            title: {
+                type: String,
+                required: true
+            },
+            questionObjects: {
+                type: Array,
+                required: true
+            }
+        });
+        this.models.Quiz = mongoose.model('quiz', quizSchema);
+    }
   }
   
   export default DatabaseClient;
