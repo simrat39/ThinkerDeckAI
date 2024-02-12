@@ -1,4 +1,4 @@
-import {MongoClient} from 'mongodb';
+import { MongoClient } from 'mongodb';
 import mongoose from 'mongoose';
 import dotenv from "dotenv";
 dotenv.config();
@@ -11,17 +11,21 @@ export class DatabaseClient {
 
 	constructor() {
 		if (!DatabaseClient.instance) {
-			// Connect to MongoDB
-			const uri = `mongodb+srv://gurtejmalik:${process.env.MONGO_KEY}@generativeai.qqdsbwh.mongodb.net`;
-			mongoose.connect(uri).then(() => {
-				console.log('MongoDB connected successfully');
-			}).catch(err => {
-				console.error('Error connecting to MongoDB:', err);
-			})
+			try {
+				// Connect to MongoDB
+				const uri = `mongodb+srv://gurtejmalik:${process.env.MONGO_KEY}@generativeai.qqdsbwh.mongodb.net`;
+				mongoose.connect(uri).then(() => {
+					console.log('MongoDB connected successfully');
+				}).catch(err => {
+					console.error('Error connecting to MongoDB:', err);
+				})
 
-			this.models = {};
-			this.createSchemas();
-			DatabaseClient.instance = mongoose.connection;
+				this.models = {};
+				this.createSchemas();
+				DatabaseClient.instance = mongoose.connection;
+			} catch (error) {
+				console.error('Error initializing DatabaseClient:', error);
+			}
 		}
 		return DatabaseClient.instance;
 	}
@@ -95,42 +99,47 @@ export class DatabaseClient {
 	}
 
 	async findCategory(subject) {
-		const Category = this.models.Category;
-		let category = await Category.findOne({
-			name: subject
-		});
-
-		if (category == undefined) {
-			const newCategory = new Category({
+		try {
+			const Category = this.models.Category;
+			let category = await Category.findOne({
 				name: subject
-			})
-			await newCategory.save()
-				.then(async () => {
-					category = await Category.findOne({
-						name: subject
-					});
-				})
+			});
+
+			if (!category) {
+				const newCategory = new Category({
+					name: subject
+				});
+				await newCategory.save();
+				category = newCategory;
+			}
+
+			return category;
+		} catch (error) {
+			console.error('Error finding or creating category:', error);
 		}
-		return category;
 	}
 
 	async saveQuiz(subject, questions) {
 		console.log("Saving quiz...");
-		const Quiz = this.models.Quiz;
+		try {
+			const Quiz = this.models.Quiz;
 
-		// Format the subject string
-		const formattedSubject = this.formatString(subject);
+			// Format the subject string
+			const formattedSubject = this.formatString(subject);
 
-		// Get the category ID based on the subject
-		const category = await this.findCategory(formattedSubject);
+			// Get the category ID based on the subject
+			const category = await this.findCategory(formattedSubject);
 
-		// create a new Quiz document
-		const newQuiz = new Quiz({
-			category_id: category._id,
-			title: `${formattedSubject} - ${category.numQuizzes}`,
-			questionObjects: questions
-		});
-		await newQuiz.save();
+			// create a new Quiz document
+			const newQuiz = new Quiz({
+				category_id: category._id,
+				title: `${formattedSubject} - ${category.numQuizzes}`,
+				questionObjects: questions
+			});
+			await newQuiz.save();
+		} catch (error) {
+			console.error('Error saving quiz:', error);
+		}
 	}
 }
 
