@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Game Host</title>
+    <link rel="stylesheet" href="/places/style/main-game-multiplayer-host.css">
+</head>
+<body>
+    <div id="question-container">
+        <!-- Question will be displayed here -->
+    </div>
+    <div id="participants">
+        <h3> Joined Participants </h3>
+    </div>
+
+    <div id="start-game-button">
+        <button id="startExploringBtn">Start Exploring</button>
+    </div>
+
+    <div id="category-buttons" style="display:none;">
+        <button id="nationalParksBtn">North America National Parks</button>
+        <button id="famousLandmarksBtn">Famous Landmarks</button>
+    </div>
+
+    <div id="nationalParks" style="display:none;">
+        <img id="parkImage" src="" alt="National Park" style="max-width: 100%; height: auto;">
+        <button id="nextParkBtn">Next</button>
+    </div>
+
+    <script src="http://localhost:8000/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Listen for player join updates
+        socket.on('playerJoined', (playerData) => {
+            const participantsDiv = document.getElementById('participants');
+            participantsDiv.innerHTML += `<p>${playerData.nickname}</p>`;
+        });
+
+        // Handle start exploring button click
+        document.getElementById('startExploringBtn').addEventListener('click', function() {
+            document.getElementById('participants').style.display = 'none';
+            document.getElementById('start-game-button').style.display = 'none';
+            document.getElementById('category-buttons').style.display = 'block'; 
+        });
+
+        document.getElementById('nationalParksBtn').addEventListener('click', function() {
+            // Hide other elements and show national parks section
+            document.getElementById('category-buttons').style.display = 'none';
+            document.getElementById('nationalParks').style.display = 'block';
+            fetchNextPark(); // Fetch the first park image
+        });
+
+        document.getElementById('nextParkBtn').addEventListener('click', function() {
+            fetchNextPark(); // Fetch the next park image
+        });
+
+        function fetchNextPark() {
+    fetch('/getNationalParkImage')
+        .then(response => response.json())
+        .then(data => {
+            const imageUrl = data.imageUrl;
+            document.getElementById('parkImage').src = imageUrl;
+        })
+        .catch(error => console.error('Error fetching park image:', error));
+}
+
+
+
+
+        document.getElementById('famousLandmarksBtn').addEventListener('click', function() {
+        });
+
+    </script>
+
+
+<div class="back-to-home">
+    <a href="/places" class="back-to-home-btn">Go Back</a>
+</div>
+
+</body>
+</html>

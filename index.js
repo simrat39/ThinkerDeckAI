@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { createServer } from "http";
+import { Server as SocketIO } from 'socket.io';
+import nodeFetch from 'node-fetch';
 import express from "express";
 import multer from "multer";
 import path from "path";
@@ -10,10 +13,15 @@ import logged_in_check from "./utilities/logged_in_check_middleware.js";
 import generateImages from "./utilities/dalleClient.js";
 import generateQues from "./utilities/gptClient.js";
 
+
 const connection = new DatabaseConnection()
 
 const app = express();
 const upload = multer();
+
+// creates HTTP server and attach the Express app to it
+const httpServer = createServer(app); 
+const io = new SocketIO(httpServer);
 
 app.set("view engine", "ejs");
 app.set("views", [
@@ -23,6 +31,28 @@ app.set("views", [
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
 app.use("/places", express.static(path.join(path.resolve(), "places", "public")));
+
+
+// WebSocket connections handling //
+io.on('connection', (socket) => {
+  console.log('A user connected via WebSocket.');
+
+  socket.on('playerJoined', (data) => {
+      // when a player joins the game
+      console.log(`Player joined: ${data.nickname}`);
+      // broadcast join event to all clients (including host)
+      io.emit('playerJoined', data);
+  });
+
+  socket.on('joinGameRequest', () => {
+      console.log('Join game request received');
+  });
+
+  socket.on('disconnect', () => {
+      console.log('User disconnected');
+  });
+});
+
 
 
 app.use("/", authRouter);
@@ -143,9 +173,78 @@ app.get("/generate-quiz", logged_in_check, (req, res) => {
   res.render("generateQuiz");
 });
 
+
+/// PLACES STARTS HERE ///
+
 app.get("/places", (req, res) => {
   res.render("places");
 });
+
+// server HOST for places
+app.get('/mainGameMultiplayerHost', (req, res) => {
+  res.render('main-game-multiplayer-host');
+});
+
+
+// CLIENT //
+app.get('/mainGameMultiplayerClient', (req, res) => {
+  res.render('multiplayer-client');
+});
+
+
+// Places Endpoints and Google API //
+// Array of Place IDs for national parks (replace with actual IDs) //
+const nationalParks = [
+  'ChIJVVVVVVXlUVMRu-GPNDD5qKw',
+  'ChIJh0vJ7ubNkFQRGKSRT_uh9Fw',
+  'ChIJxeyK9Z3wloAR_gOA7SycJC0',
+  'ChIJFU2bda4SM4cRKSCRyb6pOB8',
+  'ChIJ2fhEiNDqyoAR9VY2qhU6Lnw',
+  'ChIJ6QNZReR5aYcRF4KOp0PuJ_o',
+  'ChIJ0XIEzwmAjlQRUXl9squHIAA',
+  'ChIJlfUUPk8qzYcR3UgpdjlmLVg'
+
+];
+
+
+app.get('/getNationalParkImage', async (req, res) => {
+  try {
+      const randomIndex = Math.floor(Math.random() * nationalParks.length);
+      const placeId = nationalParks[randomIndex];
+      const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc';
+
+      // Fetch details from Google Places API
+      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&key=${apiKey}`;
+      const detailsResponse = await nodeFetch(detailsUrl);
+      const detailsData = await detailsResponse.json();
+
+      // Check for photos in the response
+      if (!detailsData.result.photos || detailsData.result.photos.length === 0) {
+          throw new Error('No photos found for this place');
+      }
+
+      // Get the photo reference
+      const photoReference = detailsData.result.photos[0].photo_reference;
+
+      // Construct the URL for the photo
+      const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
+
+      res.json({ imageUrl: photoUrl });
+  } catch (error) {
+      console.error('Error fetching park image:', error);
+      res.status(500).send(`Error fetching park image: ${error.message}`);
+  }
+});
+
+
+
+
+
+
+
+/// PLACES ENDS HERE ///
+
+
 
 // Endpoint to display all categories
 app.get("/categories", logged_in_check, async (req, res) => {
@@ -184,6 +283,6 @@ app.get("/category/:category_id/questions", logged_in_check, async (req, res) =>
 });
 
 const port = 8000;
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log("Running on port " + port);
 });

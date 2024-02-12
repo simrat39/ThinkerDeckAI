@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Places-Multiplayer</title>
+    <link rel="stylesheet" href="/places/style/multiplayer-client.css">
+</head>
+<body>
+
+
+    <div id="nickname-section">
+        <input type="text" id="nickname" placeholder="Enter your nickname">
+        <button id="join-game">Join Game</button>
+    </div>
+
+    <div id="question-options" style="display:none;">
+        <!-- Options will be dynamically loaded here -->
+    </div>
+
+    <script src="http://192.168.0.16:8000/socket.io/socket.io.js">
+        // bcit: 10.65.65.13
+        // home: 192.168.0.16
+        // cell data: 172.20.10.4
+        // find ip address: ipconfig
+    </script>
+   <script>
+        const socket = io();
+
+        document.getElementById('join-game').addEventListener('click', function() {
+            const nickname = document.getElementById('nickname').value;
+            socket.emit('playerJoined', { nickname: nickname });
+            // Hide nickname section and show question options
+            document.getElementById('nickname-section').style.display = 'none';
+            document.getElementById('question-options').style.display = 'block';
+        });
+
+        // Listen for question update
+        socket.on('updateQuestion', (questionData) => {
+            // Populate question-options div with questionData
+        });
+    </script>
+
+
+</body>
+</html>
+
