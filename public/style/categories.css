@@ -26,24 +26,30 @@ h1 {
 }
 
 #categories-list li {
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(10px);
     margin-bottom: 10px;
-    padding: 10px;
     border-radius: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.6);
+    overflow: hidden; 
 }
 
 #categories-list li a {
-    color: #665807; 
+    display: block; 
+    background: rgba(255, 255, 255, 0.5); 
+    backdrop-filter: blur(10px);
+    padding: 10px; 
+    border-radius: 20px; 
+    color: #665807;
     text-decoration: none;
-    transition: color 0.3s;
+    transition: color 0.3s, background-color 0.3s; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
 }
 
 #categories-list li a:hover {
     color: #ffce00;
+    background: rgba(255, 255, 224, 0.8); 
 }
+
 
 .back-to-home {
     position: fixed;

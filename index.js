@@ -16,10 +16,14 @@ const app = express();
 const upload = multer();
 
 app.set("view engine", "ejs");
-app.set("views", path.join(path.resolve(), "views"));
-
+app.set("views", [
+  path.join(path.resolve(), "views"),
+  path.join(path.resolve(), "places", "views")
+]);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
+app.use("/places", express.static(path.join(path.resolve(), "places", "public")));
+
 
 app.use("/", authRouter);
 
@@ -137,6 +141,10 @@ app.get("/", (req, res) => {
 
 app.get("/generate-quiz", logged_in_check, (req, res) => {
   res.render("generateQuiz");
+});
+
+app.get("/places", (req, res) => {
+  res.render("places");
 });
 
 // Endpoint to display all categories
