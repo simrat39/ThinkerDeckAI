@@ -3,7 +3,7 @@ import passport from "passport";
 import LocalStrategy from "passport-local";
 import session from "express-session";
 import MongoDBStore from "connect-mongodb-session";
-import DatabaseClient from "../utilities/databaseClient.js";
+import { DatabaseClient } from "../utilities/databaseClient.js";
 
 const connection = new DatabaseClient();
 const router = Router()

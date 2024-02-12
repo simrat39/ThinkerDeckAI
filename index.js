@@ -2,12 +2,13 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import authRouter from "./routes/auth.js"
-import DatabaseConnection from "./utilities/database_connection.js"
+import { DatabaseClient } from "./utilities/databaseClient.js";
 import logged_in_check from "./utilities/logged_in_check_middleware.js";
 import generateImages from "./utilities/dalleClient.js";
 import generateQues from "./utilities/gptClient.js";
 
-const connection = new DatabaseConnection()
+const connection = new DatabaseClient();
+//console.log(connection);
 const app = express();
 const upload = multer();
 
@@ -35,91 +36,26 @@ app.use("/", authRouter);
     }
 
     // Generate questions through GPT-4 
-    const generatedQuestions = await generateQues(subject, num_ques);
+    let generatedQuestions = await generateQues(subject, num_ques);
 
-    // Generate images through DALL-E 2
-    const generatedImages = await generateImages(generatedQuestions);
+    // // Generate images through DALL-E 2
+    // const generatedImages = await generateImages(generatedQuestions);
 
-    // append image URLS to respective questions
-    for (let i = 0; i < generatedQuestions.length; i++) {
-      generatedQuestions[i].image = generatedImages[i];
-    }
+    // // append image URLS to respective questions
+    // for (let i = 0; i < generatedQuestions.length; i++) {
+    //   generatedQuestions[i].image = generatedImages[i];
+    // }
 
-    // Assuming the language is always English!!!
-    const [languages] = await connection
-      .promise()
-      .query("SELECT language_id FROM Languages WHERE language_name = ?", [
-        "English",
-      ]);
-    const languageId = languages[0].language_id;
-
-    // Get the category ID based on the subject
-    let [categories] = await connection
-      .promise()
-      .query("SELECT category_id FROM Categories WHERE category_name = ?", [
-        subject,
-      ]);
-    if (categories[0] == undefined) {
-      await connection
-        .promise()
-        .query(
-          "INSERT into Categories (language_id, category_name) VALUES (?, ?)",
-          [1, subject]
-        );
-
-      categories = (
-        await connection
-          .promise()
-          .query("SELECT category_id FROM Categories WHERE category_name = ?", [
-            subject,
-          ])
-      )[0];
-      console.log(categories);
-    }
-    const categoryId = categories[0].category_id;
-
-    // Insert the generated questions and options into the database
-    for (const questionObj of generatedQuestions) {
-      const questionText = questionObj.question;
-      const choices = questionObj.choices;
-      const correctAnswer = questionObj.answer;
-
-      // Start a database transaction
-      await connection.promise().beginTransaction();
-
-      // Insert the question
-      const [questionResult] = await connection
-        .promise()
-        .query(
-          "INSERT INTO Questions (category_id, language_id, question_text) VALUES (?, ?, ?)",
-          [categoryId, languageId, questionText]
-        );
-
-      const questionId = questionResult.insertId;
-
-      // Insert the options
-      for (const choice of choices) {
-        const isCorrect = choice === correctAnswer;
-        await connection
-          .promise()
-          .query(
-            "INSERT INTO Options (question_id, option_text, is_correct) VALUES (?, ?, ?)",
-            [questionId, choice, isCorrect]
-          );
-      }
-
-      // Commit the transaction
-      await connection.promise().commit();
-    }
+    // save quiz to database
+    await connection.saveQuiz(subject, generatedQuestions);
 
     // Render the question stack view with the generated questions
     res.render("questionStack", { questions: generatedQuestions });
   } catch (error) {
-    // Rollback the transaction in case of an error
-    await connection.promise().rollback();
     console.error(error);
     res.status(500).send("An error occurred while generating the questions.");
   }
+
 });
 
 app.get("/questions", logged_in_check, (req, res) => {
