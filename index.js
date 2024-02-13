@@ -30,12 +30,14 @@ const upload = multer();
 // creates HTTP server and attach the Express app to it
 const httpServer = createServer(app); 
 const io = new SocketIO(httpServer);
+app.use(express.json()); // This line should be placed before your routes
 
 app.set("view engine", "ejs");
 app.set("views", [
   path.join(path.resolve(), "views"),
   path.join(path.resolve(), "places", "views")
 ]);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
 app.use("/places", express.static(path.join(path.resolve(), "places", "public")));
@@ -213,10 +215,11 @@ app.get('/api/categories', async (req, res) => {
 });
 
 
-// Assuming you have Express set up and generateQues imported
 app.post('/places/generate_questions', async (req, res) => {
-  console.log(req.body); 
+  console.log(req.body);  // Should show the structured object including 'category'
   const { category, num_questions } = req.body;
+  console.log("Category for GPT-4:", category); // Verify this is correctly logged
+
   try {
       const questions = await generateQuesPlaces(category, num_questions);
       res.json({ questions }); // Send the generated questions back to the frontend

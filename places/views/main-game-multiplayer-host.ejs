@@ -82,13 +82,16 @@
         }
 
         function generateQuestionsForCategory(category) {
+            console.log({ category: category, num_questions: 1 }); // Debugging line
+
             fetch('/places/generate_questions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ category: category, num_questions: 5 })
-            })
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ category: category, num_questions: 1 })
+})
+
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
