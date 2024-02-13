@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trivia Game Host</title>
     <link rel="stylesheet" href="/places/style/main-game-multiplayer-host.css">
 </head>
+
 <body>
     <div id="question-container">
         <!-- Question will be displayed here -->
@@ -23,7 +25,7 @@
     </div>
 
     <div id="nationalParks" style="display:none;">
-        <img id="parkImage" src="" alt="National Park" style="max-width: 100%; height: auto;">
+        <!-- <img id="parkImage" src="" alt="National Park" style="max-width: 100%; height: auto;"> -->
         <button id="nextParkBtn">Next</button>
     </div>
 
@@ -31,13 +33,13 @@
     <script>
         const socket = io();
         let currentCategory = null; // Global variable to store the current category
-    
+
         // Listen for player join updates
         socket.on('playerJoined', (playerData) => {
             const participantsDiv = document.getElementById('participants');
             participantsDiv.innerHTML += `<p>${playerData.nickname}</p>`;
         });
-    
+
         // Fetch categories and dynamically create buttons
         function fetchCategoriesAndCreateButtons() {
             fetch('/api/categories')
@@ -48,7 +50,7 @@
                     categories.forEach(category => {
                         const button = document.createElement('button');
                         button.textContent = category.name;
-                        button.addEventListener('click', function() {
+                        button.addEventListener('click', function () {
                             currentCategory = category.name; // Store the current category
                             document.getElementById('category-buttons').style.display = 'none';
                             if (category.name === 'North American National Parks') {
@@ -63,13 +65,13 @@
                 })
                 .catch(error => console.error('Error fetching categories:', error));
         }
-    
+
         // Handle start exploring button click
-        document.getElementById('startExploringBtn').addEventListener('click', function() {
+        document.getElementById('startExploringBtn').addEventListener('click', function () {
             document.getElementById('participants').style.display = 'none';
             document.getElementById('start-game-button').style.display = 'none';
             fetchCategoriesAndCreateButtons(); // Fetch categories and create buttons dynamically
-            document.getElementById('category-buttons').style.display = 'block'; 
+            document.getElementById('category-buttons').style.display = 'block';
         });
 
         function fetchNextPark() {
@@ -83,49 +85,49 @@
         }
 
         function generateQuestionsForCategory(category) {
-    fetch('/places/generate_questions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ category: category, num_questions: 1 }) // Fetch only one question
-        
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+            fetch('/places/generate_questions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        category: category,
+                        num_questions: 1
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const questionContainer = document.getElementById('question-container');
+                    const question = data.questions[0];
+                    const imageUrl = data.photoUrl; // Get the image URL from the response
+
+                    // Display the question
+                    questionContainer.innerHTML =
+                        `<p>${question.question}</p><img src="${imageUrl}" alt="Place Image" style="max-width: 100%; height: auto;">`;
+
+                    // Emit the question options to players
+                    socket.emit('questionOptions', {
+                        options: question.choices
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data.questions);
-        // Assuming data.questions is an array with one question object
-        const questionContainer = document.getElementById('question-container');
-        const question = data.questions[0]; // Assuming the first (and only) question is what we want to display
-        
-        // Extract and store the answer
-        const answer = question.answer; // Here's how you extract the answer
-        console.log("Answer to the question: ", answer); // Log the answer or store it as needed
-
-        socket.emit('questionOptions', { options: question.choices });
-        questionContainer.innerHTML = `<p>${question.question}</p>`; // Display the question
-    })
-    .catch(error => {
-        console.error('Error fetching questions:', error);
-    });
-}
 
 
-    // Add click event listener to the "Next" button to fetch a new question for the current category
-    document.getElementById('nextParkBtn').addEventListener('click', function() {
-        if (currentCategory) { // Check if a category has been selected
-            generateQuestionsForCategory(currentCategory); // Fetch a new question
-        }
-    });
-</script>
+
+        // Add click event listener to the "Next" button to fetch a new question for the current category
+        document.getElementById('nextParkBtn').addEventListener('click', function () {
+            if (currentCategory) { // Check if a category has been selected
+                generateQuestionsForCategory(currentCategory); // Fetch a new question
+            }
+        });
+    </script>
 
     <div class="back-to-home">
         <a href="/places" class="back-to-home-btn">Go Back</a>
     </div>
 </body>
+
 </html>

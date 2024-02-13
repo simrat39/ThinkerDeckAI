@@ -218,85 +218,95 @@ app.get('/api/categories', async (req, res) => {
 });
 
 
+// Adjust the `generateQuestionsForCategory` function to also fetch and send back the image URL.
 app.post('/places/generate_questions', async (req, res) => {
   const { category, num_questions } = req.body;
 
   try {
       const questions = await generateQuesPlaces(category, num_questions);
-      const answer = questions[0].answer; // Assuming the first question's answer is what you're interested in
+      const answer = questions[0].answer;
 
-      // Now, use the answer to call the Google Places API
-      const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc'; // Make sure to use your actual API key
+      // Use the answer to call the Google Places API to find place_id
+      const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc';
       const inputType = 'textquery';
-      const input = encodeURIComponent(answer); // Ensure the answer is URL-encoded
-      const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=${inputType}&input=${input}&key=${apiKey}`;
+      const input = encodeURIComponent(answer);
+      const findPlaceUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=${inputType}&input=${input}&key=${apiKey}`;
 
-      const response = await fetch(url);
-      const json = await response.json();
+      const placeResponse = await fetch(findPlaceUrl);
+      const placeJson = await placeResponse.json();
 
-      console.log(json); // Print the entire response
+      if (placeJson.candidates.length > 0) {
+          const placeId = placeJson.candidates[0].place_id;
 
-      if (json.candidates.length > 0) {
-          const placeId = json.candidates[0].place_id;
-          console.log("Place ID:", placeId); // Print the place_id
+          // Fetch the image URL using the place_id
+          const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&fields=photo&key=${apiKey}`;
+          const detailsResponse = await fetch(detailsUrl);
+          const detailsJson = await detailsResponse.json();
 
-          // You can now store the placeId or use it as needed
-          // For example, sending it back in the response:
-          res.json({ questions, placeId });
+          if (detailsJson.result.photos && detailsJson.result.photos.length > 0) {
+              const photoReference = detailsJson.result.photos[0].photo_reference;
+              const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
+
+              // Send back the question, answer, place_id, and photo URL
+              res.json({ questions, photoUrl });
+          } else {
+              throw new Error('No photos found for this place');
+          }
       } else {
           throw new Error('No candidates found for the given location.');
       }
   } catch (error) {
-      console.error('Failed to generate questions or fetch place ID:', error);
-      res.status(500).send('Failed to generate questions or fetch place ID.');
+      console.error('Failed to generate questions or fetch place ID/image:', error);
+      res.status(500).send('Failed to generate questions or fetch place ID/image.');
   }
 });
+
 
 
 
 // Places Endpoints and Google API //
-// Array of Place IDs for national parks (replace with actual IDs) //
-const nationalParks = [
-  'ChIJVVVVVVXlUVMRu-GPNDD5qKw',
-  'ChIJh0vJ7ubNkFQRGKSRT_uh9Fw',
-  'ChIJxeyK9Z3wloAR_gOA7SycJC0',
-  'ChIJFU2bda4SM4cRKSCRyb6pOB8',
-  'ChIJ2fhEiNDqyoAR9VY2qhU6Lnw',
-  'ChIJ6QNZReR5aYcRF4KOp0PuJ_o',
-  'ChIJ0XIEzwmAjlQRUXl9squHIAA',
-  'ChIJlfUUPk8qzYcR3UgpdjlmLVg'
+// // Array of Place IDs for national parks (replace with actual IDs) //
+// const nationalParks = [
+//   'ChIJVVVVVVXlUVMRu-GPNDD5qKw',
+//   'ChIJh0vJ7ubNkFQRGKSRT_uh9Fw',
+//   'ChIJxeyK9Z3wloAR_gOA7SycJC0',
+//   'ChIJFU2bda4SM4cRKSCRyb6pOB8',
+//   'ChIJ2fhEiNDqyoAR9VY2qhU6Lnw',
+//   'ChIJ6QNZReR5aYcRF4KOp0PuJ_o',
+//   'ChIJ0XIEzwmAjlQRUXl9squHIAA',
+//   'ChIJlfUUPk8qzYcR3UgpdjlmLVg'
 
-];
+// ];
 
 
-app.get('/getNationalParkImage', async (req, res) => {
-  try {
-      const randomIndex = Math.floor(Math.random() * nationalParks.length);
-      const placeId = nationalParks[randomIndex];
-      const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc';
+// app.get('/getNationalParkImage', async (req, res) => {
+//   try {
+//       const randomIndex = Math.floor(Math.random() * nationalParks.length);
+//       const placeId = nationalParks[randomIndex];
+//       const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc';
 
-      // Fetch details from Google Places API
-      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&key=${apiKey}`;
-      const detailsResponse = await nodeFetch(detailsUrl);
-      const detailsData = await detailsResponse.json();
+//       // Fetch details from Google Places API
+//       const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&key=${apiKey}`;
+//       const detailsResponse = await nodeFetch(detailsUrl);
+//       const detailsData = await detailsResponse.json();
 
-      // Check for photos in the response
-      if (!detailsData.result.photos || detailsData.result.photos.length === 0) {
-          throw new Error('No photos found for this place');
-      }
+//       // Check for photos in the response
+//       if (!detailsData.result.photos || detailsData.result.photos.length === 0) {
+//           throw new Error('No photos found for this place');
+//       }
 
-      // Get the photo reference
-      const photoReference = detailsData.result.photos[0].photo_reference;
+//       // Get the photo reference
+//       const photoReference = detailsData.result.photos[0].photo_reference;
 
-      // Construct the URL for the photo
-      const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
+//       // Construct the URL for the photo
+//       const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
 
-      res.json({ imageUrl: photoUrl });
-  } catch (error) {
-      console.error('Error fetching park image:', error);
-      res.status(500).send(`Error fetching park image: ${error.message}`);
-  }
-});
+//       res.json({ imageUrl: photoUrl });
+//   } catch (error) {
+//       console.error('Error fetching park image:', error);
+//       res.status(500).send(`Error fetching park image: ${error.message}`);
+//   }
+// });
 
 
 
