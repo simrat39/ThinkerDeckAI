@@ -12,9 +12,17 @@ import DatabaseConnection from "./utilities/database_connection.js"
 import logged_in_check from "./utilities/logged_in_check_middleware.js";
 import generateImages from "./utilities/dalleClient.js";
 import generateQues from "./utilities/gptClient.js";
+import generateQuesPlaces from "./utilities/gptClient_places.js";
 
 
-const connection = new DatabaseConnection()
+// const connection = new DatabaseConnection()
+
+// For operations related to the generative_ai database
+const generativeAiDbConnection = DatabaseConnection.getConnection("generative_ai");
+
+// For operations related to the places database
+const placesDbConnection = DatabaseConnection.getConnection("places");
+
 
 const app = express();
 const upload = multer();
@@ -190,6 +198,34 @@ app.get('/mainGameMultiplayerHost', (req, res) => {
 app.get('/mainGameMultiplayerClient', (req, res) => {
   res.render('multiplayer-client');
 });
+
+
+// Endpoint to fetch all categories
+app.get('/api/categories', async (req, res) => {
+  try {
+      // Fetch categories from the database
+      const [categories] = await placesDbConnection.promise().query("SELECT * FROM categories");
+      res.json(categories);
+  } catch (error) {
+      console.error('Error fetching categories:', error);
+      res.status(500).send('Error fetching categories.');
+  }
+});
+
+
+// Assuming you have Express set up and generateQues imported
+app.post('/places/generate_questions', async (req, res) => {
+  console.log(req.body); 
+  const { category, num_questions } = req.body;
+  try {
+      const questions = await generateQuesPlaces(category, num_questions);
+      res.json({ questions }); // Send the generated questions back to the frontend
+  } catch (error) {
+      console.error('Failed to generate questions:', error);
+      res.status(500).send('Failed to generate questions.');
+  }
+});
+
 
 
 // Places Endpoints and Google API //

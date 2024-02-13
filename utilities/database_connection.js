@@ -1,30 +1,28 @@
 import { createConnection } from "mysql2";
 import dotenv from "dotenv";
 
-// export default connection;
 class DatabaseConnection {
-  constructor() {
-    if (!DatabaseConnection.instance) {
+  static connections = {};
+
+  static getConnection(databaseName) {
+    if (!this.connections[databaseName]) {
       dotenv.config();
-      // connection to the database
       const connection = createConnection({
         host: "localhost",
         user: "root",
         password: "Stuccosong88",
-        database: "generative_ai",
+        database: databaseName,
       });
 
-      // Connect to MySQL
       connection.connect((err) => {
         if (err) throw err;
-        console.log("Connected to the MySQL server.");
+        console.log(`Connected to the MySQL server: ${databaseName}`);
       });
-      DatabaseConnection.instance = connection;
+
+      this.connections[databaseName] = connection;
     }
-    // Initialize object
-    return DatabaseConnection.instance;
+    return this.connections[databaseName];
   }
-  // Properties & Methods
 }
 
 export default DatabaseConnection;
