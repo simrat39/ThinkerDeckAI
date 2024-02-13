@@ -219,16 +219,36 @@ app.get('/api/categories', async (req, res) => {
 
 
 app.post('/places/generate_questions', async (req, res) => {
-  console.log(req.body);  // Should show the structured object including 'category'
   const { category, num_questions } = req.body;
-  console.log("Category for GPT-4:", category); // Verify this is correctly logged
 
   try {
       const questions = await generateQuesPlaces(category, num_questions);
-      res.json({ questions }); // Send the generated questions back to the frontend
+      const answer = questions[0].answer; // Assuming the first question's answer is what you're interested in
+
+      // Now, use the answer to call the Google Places API
+      const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc'; // Make sure to use your actual API key
+      const inputType = 'textquery';
+      const input = encodeURIComponent(answer); // Ensure the answer is URL-encoded
+      const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=${inputType}&input=${input}&key=${apiKey}`;
+
+      const response = await fetch(url);
+      const json = await response.json();
+
+      console.log(json); // Print the entire response
+
+      if (json.candidates.length > 0) {
+          const placeId = json.candidates[0].place_id;
+          console.log("Place ID:", placeId); // Print the place_id
+
+          // You can now store the placeId or use it as needed
+          // For example, sending it back in the response:
+          res.json({ questions, placeId });
+      } else {
+          throw new Error('No candidates found for the given location.');
+      }
   } catch (error) {
-      console.error('Failed to generate questions:', error);
-      res.status(500).send('Failed to generate questions.');
+      console.error('Failed to generate questions or fetch place ID:', error);
+      res.status(500).send('Failed to generate questions or fetch place ID.');
   }
 });
 
