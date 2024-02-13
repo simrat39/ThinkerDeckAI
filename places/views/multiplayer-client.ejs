@@ -25,21 +25,34 @@
         // find ip address: ipconfig
     </script>
    <script>
-        const socket = io();
+    const socket = io();
 
-        document.getElementById('join-game').addEventListener('click', function() {
-            const nickname = document.getElementById('nickname').value;
-            socket.emit('playerJoined', { nickname: nickname });
-            // Hide nickname section and show question options
-            document.getElementById('nickname-section').style.display = 'none';
-            document.getElementById('question-options').style.display = 'block';
-        });
+    document.getElementById('join-game').addEventListener('click', function() {
+        const nickname = document.getElementById('nickname').value;
+        socket.emit('playerJoined', { nickname: nickname });
+        // Hide nickname section and show question options
+        document.getElementById('nickname-section').style.display = 'none';
+        document.getElementById('question-options').style.display = 'block';
+    });
 
-        // Listen for question update
-        socket.on('updateQuestion', (questionData) => {
-            // Populate question-options div with questionData
+    // Listen for question options update
+    socket.on('questionOptions', (data) => {
+        const optionsContainer = document.getElementById('question-options');
+        optionsContainer.innerHTML = ''; // Clear existing options
+
+        // Ensure data.options is the expected structure, e.g., an array of option strings
+        data.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerText = option; // Directly using option as button text
+            button.onclick = function() { /* Handle option selection */ };
+            optionsContainer.appendChild(button);
         });
-    </script>
+    });
+</script>
+
+
+
+
 
 
 </body>

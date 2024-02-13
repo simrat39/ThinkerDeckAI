@@ -89,7 +89,9 @@
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ category: category, num_questions: 1 }) // Fetch only one question
+            
         })
+        
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -102,6 +104,8 @@
             // Assuming data.questions is an array with one question object
             const questionContainer = document.getElementById('question-container');
             const question = data.questions[0]; // Assuming the first (and only) question is what we want to display
+            socket.emit('questionOptions', { options: question.choices });
+            // socket.emit('updateQuestion', question);
             questionContainer.innerHTML = `<p>${question.question}</p>`; // Simplified for example
         })
         .catch(error => {
