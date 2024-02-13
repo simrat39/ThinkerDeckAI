@@ -30,13 +30,14 @@
     <script src="http://localhost:8000/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-
+        let currentCategory = null; // Global variable to store the current category
+    
         // Listen for player join updates
         socket.on('playerJoined', (playerData) => {
             const participantsDiv = document.getElementById('participants');
             participantsDiv.innerHTML += `<p>${playerData.nickname}</p>`;
         });
-
+    
         // Fetch categories and dynamically create buttons
         function fetchCategoriesAndCreateButtons() {
             fetch('/api/categories')
@@ -48,21 +49,21 @@
                         const button = document.createElement('button');
                         button.textContent = category.name;
                         button.addEventListener('click', function() {
-                            // Hide other elements and show relevant section based on the category
+                            currentCategory = category.name; // Store the current category
                             document.getElementById('category-buttons').style.display = 'none';
                             if (category.name === 'North American National Parks') {
                                 document.getElementById('nationalParks').style.display = 'block';
                                 fetchNextPark(); // Fetch the first park image
                             }
-                            // Call a function to handle category selection (e.g., fetch questions for the category)
-                            generateQuestionsForCategory(category.name);
+                            // Fetch the first question for the category
+                            generateQuestionsForCategory(currentCategory);
                         });
                         categoryButtonsDiv.appendChild(button);
                     });
                 })
                 .catch(error => console.error('Error fetching categories:', error));
         }
-
+    
         // Handle start exploring button click
         document.getElementById('startExploringBtn').addEventListener('click', function() {
             document.getElementById('participants').style.display = 'none';
@@ -82,31 +83,39 @@
         }
 
         function generateQuestionsForCategory(category) {
-            console.log({ category: category, num_questions: 1 }); // Debugging line
+        fetch('/places/generate_questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ category: category, num_questions: 1 }) // Fetch only one question
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data.questions);
+            // Update UI with the new question here
+            // Assuming data.questions is an array with one question object
+            const questionContainer = document.getElementById('question-container');
+            const question = data.questions[0]; // Assuming the first (and only) question is what we want to display
+            questionContainer.innerHTML = `<p>${question.question}</p>`; // Simplified for example
+        })
+        .catch(error => {
+            console.error('Error fetching questions:', error);
+        });
+    }
 
-            fetch('/places/generate_questions', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ category: category, num_questions: 1 })
-})
-
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data.questions);
-                // Update UI with questions here
-            })
-            .catch(error => {
-                console.error('Error fetching questions:', error);
-            });
+    // Add click event listener to the "Next" button to fetch a new question for the current category
+    document.getElementById('nextParkBtn').addEventListener('click', function() {
+        if (currentCategory) { // Check if a category has been selected
+            generateQuestionsForCategory(currentCategory); // Fetch a new question
         }
-    </script>
+    });
+</script>
 
     <div class="back-to-home">
         <a href="/places" class="back-to-home-btn">Go Back</a>
