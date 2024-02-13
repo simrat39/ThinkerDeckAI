@@ -184,6 +184,9 @@ app.get("/generate-quiz", logged_in_check, (req, res) => {
 });
 
 
+
+
+
 /// PLACES STARTS HERE ///
 
 app.get("/places", (req, res) => {
