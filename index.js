@@ -50,6 +50,8 @@ app.post(
         generatedQuestions[i].image = generatedImages[i];
       }
 
+      console.log(generatedQuestions);
+
       // save quiz to database
       // await connection.saveQuiz(subject, generatedQuestions);
 
@@ -64,8 +66,53 @@ app.post(
 
 app.get("/questions", logged_in_check, (req, res) => {
   const dummyQuestions = [
-    { question: "What is the capital of France?" },
-    { question: "What is the largest planet in our solar system?" },
+    {
+      question: "Which champion is known as the 'Might of Demacia'?",
+      image:
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-gXH6hy6CWuqXBIya1dQTji9B/user-0k86RrGYAA47himXlMXUfvC0/img-Wh4y7AX7PMM7JBhN2a2zdc0a.png?st=2024-02-15T21%3A14%3A11Z&se=2024-02-15T23%3A14%3A11Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-02-15T22%3A14%3A11Z&ske=2024-02-16T22%3A14%3A11Z&sks=b&skv=2021-08-06&sig=7ApoaG5Q7tup0MD6fTRyWreNDR1PDA0NAmGlGIjQhm0%3D",
+      choices: ["A) Garen", "B) Ashe", "C) Akali", "D) Twisted Fate"],
+      answer: "A) Garen",
+    },
+    {
+      question: "What is the default map in League of Legends called?",
+      image:
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-gXH6hy6CWuqXBIya1dQTji9B/user-0k86RrGYAA47himXlMXUfvC0/img-GdygcNMCg6DtGYgSMWXReQMw.png?st=2024-02-15T21%3A14%3A21Z&se=2024-02-15T23%3A14%3A21Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-02-15T02%3A27%3A58Z&ske=2024-02-16T02%3A27%3A58Z&sks=b&skv=2021-08-06&sig=TnrJA509jDTAZjDf9pXLhT2QlqR8Oa8tUqgSfgr26Gk%3D",
+      choices: [
+        "A) Crystal Scar",
+        "B) Howling Abyss",
+        "C) Twisted Treeline",
+        "D) Summoner's Rift",
+      ],
+      answer: "D) Summoner's Rift",
+    },
+    {
+      question:
+        "Which League of Legends champion has a passive ability called 'Cursed Touch'?",
+      image:
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-gXH6hy6CWuqXBIya1dQTji9B/user-0k86RrGYAA47himXlMXUfvC0/img-gJ4SQQcD3iFBQHzp2UGkwFvz.png?st=2024-02-15T21%3A14%3A30Z&se=2024-02-15T23%3A14%3A30Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-02-15T16%3A20%3A06Z&ske=2024-02-16T16%3A20%3A06Z&sks=b&skv=2021-08-06&sig=ujHYoeVGafKTuhgp1TuuuumRAmyGjMc2ZqqRthiu3eI%3D",
+      choices: ["A) Teemo", "B) Amumu", "C) Ivern", "D) Poppy"],
+      answer: "B) Amumu",
+    },
+    {
+      question:
+        "What is the maximum level a champion can reach in-game in a standard match?",
+      image:
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-gXH6hy6CWuqXBIya1dQTji9B/user-0k86RrGYAA47himXlMXUfvC0/img-W7cYloC4ZE362J5e6uG67edv.png?st=2024-02-15T21%3A14%3A40Z&se=2024-02-15T23%3A14%3A40Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-02-15T16%3A56%3A49Z&ske=2024-02-16T16%3A56%3A49Z&sks=b&skv=2021-08-06&sig=yPyOOGSYiuDsW%2BLz1pMkw5LoZRWEOOwOcy%2BJoSg5y5E%3D",
+      choices: ["A) 15", "B) 16", "C) 17", "D) 18"],
+      answer: "D) 18",
+    },
+    {
+      question: "What is the name of the dragon that grants an infernal buff?",
+      image:
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-gXH6hy6CWuqXBIya1dQTji9B/user-0k86RrGYAA47himXlMXUfvC0/img-5hDlzMl2ripKglyqoWAtNPmb.png?st=2024-02-15T21%3A14%3A49Z&se=2024-02-15T23%3A14%3A49Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-02-15T14%3A51%3A23Z&ske=2024-02-16T14%3A51%3A23Z&sks=b&skv=2021-08-06&sig=KkY8vdDdIqJU86wLFVZpYDnUdyUP%2Bt8rrM3139xdKZ0%3D",
+      choices: [
+        "A) Cloud Drake",
+        "B) Mountain Drake",
+        "C) Ocean Drake",
+        "D) Infernal Drake",
+      ],
+      answer: "D) Infernal Drake",
+    },
   ];
   res.render("questionStack", { questions: dummyQuestions });
 });

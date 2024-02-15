@@ -56,7 +56,7 @@ export default async function generateQues(subject, num_ques) {
     });
   
     // Log the GPT-4 completion content
-    console.log("GPT-4 Completion Content:", completion.choices[0].message.content);
+    // console.log("GPT-4 Completion Content:", completion.choices[0].message.content);
 
     // Parse the returned questions
     const generatedQuestions = JSON.parse(

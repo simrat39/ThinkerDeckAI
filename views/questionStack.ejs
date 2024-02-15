@@ -1,44 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Question Cards</title>
-  <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.11/dist/interact.min.js"></script>
-  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-  <script src="/scripts/questionStack.js"></script>
-  <link rel="stylesheet" href="/style/questionStack.css">
-  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-</head>
-<body>
-  <div class="swiper-container">
-    <div class="swiper-wrapper">
-      <% if(typeof questions !== 'undefined' && questions.length > 0) { %>
-        <% let questionCounter = 1; %>
-        <% questions.forEach(function(question) { %>
-          <div class="swiper-slide">
-            <div class="question-card" id="ques<%= questionCounter %>">
-              <p class="question-text"><%= question.question %></p>
-              <img src="<%= question.image %>" alt="" srcset="" width="100" height="100">
-              <ul class="options">
-                <% if (question.choices && question.choices.length > 0) { %>
-                  <% question.choices.forEach(function(option) { %>
-                    <li class="option <%= option === question.answer ? 'correctAns' : '' %>"><%= option %></li>
-                  <% }); %>
-                <% } else { %>
-                  <li class="option">No options available.</li>
-                <% } %>
-              </ul>
-            </div>
-          </div>
-            <% questionCounter++; %>
-        <% }); %>
-      <% } else { %>
-        <div class="swiper-slide">No questions available.</div>
-      <% } %>
-    </div>
-    <div class="swiper-pagination"></div>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Question Cards</title>
 
-</body>
+    <link rel="stylesheet" href="/style/questionStack.css" />
+  </head>
+
+  <body>
+    <!-- <% if (questions) { %> -->
+    <script>
+      var server_questions = `<%- JSON.stringify(questions) %>`;
+    </script>
+    <!-- <% } %> -->
+    <div id="container">
+      <div id="qcard">
+        <img src="" alt="" srcset="" id="img" />
+
+        <div id="title"></div>
+      </div>
+
+      <div id="options">
+        <button id="o0" class="option"></button>
+        <button id="o1" class="option"></button>
+        <button id="o2" class="option"></button>
+        <button id="o3" class="option"></button>
+      </div>
+    </div>
+
+    <div id="controls">
+      <button id="prev">Prev</button>
+      <span id="score">0 / 0</span>
+      <button id="next">Next</button>
+    </div>
+
+    <script src="/scripts/questionStack.js"></script>
+  </body>
 </html>

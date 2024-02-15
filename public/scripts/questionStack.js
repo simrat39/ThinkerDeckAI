@@ -1,178 +1,131 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const swiper = new Swiper(".swiper-container", {
-    effect: "coverflow",
-    grabCursor: true,
-    centeredSlides: true,
-    slidesPerView: "auto",
-    // coverflowEffect: {
-    //     rotate: 50,
-    //     stretch: 0,
-    //     depth: 100,
-    //     modifier: 1,
-    //     slideShadows: true,
-    // },
-    pagination: {
-      el: ".swiper-pagination",
-    },
-  });
+let abort_controller = new AbortController();
+let signal = abort_controller.signal;
 
-  // document.querySelectorAll('.option').forEach((option) => {
-  //     option.addEventListener('click', () => {
-  //         console.log('Option clicked:', option.textContent);
-  //         const isCorrect = option.classList.contains('correctAns');
-  //
-  //         document.querySelectorAll('.option').forEach((opt) => {
-  //             opt.classList.remove('selected', 'green-background', 'red-background');
-  //
-  //             if (opt === option) {
-  //                 opt.classList.add('selected');
-  //
-  //                 if (isCorrect) {
-  //                     opt.classList.add('green-background');
-  //                 } else {
-  //                     opt.classList.add('red-background');
-  //                 }
-  //             } else if (opt.classList.contains('correctAns')) {
-  //                 opt.classList.add('green-background');
-  //             }
-  //         });
-  //     });
-  // });
+const questions = JSON.parse(server_questions);
+const already_answered = new Map();
 
-  const options = document.querySelectorAll(".option");
-  console.log(options);
+let score = 0;
+let current_question = 0;
+let last_ques = questions.length - 1;
 
-  for (const o of options) {
-    o.addEventListener("click", () => {
-      const questionContainer = o.closest(".question-card");
-      const questionId = questionContainer.id; // Get the question ID
-      handleOptionClick(o, questionId);
-    });
+function cleanup_options_listener() {
+  abort_controller.abort();
+
+  abort_controller = new AbortController();
+  signal = abort_controller.signal;
+}
+
+function cleanup_options_classes() {
+  for (let i = 0; i < 4; i++) {
+    const option_elem = document.getElementById(`o${i}`);
+    option_elem.classList.remove("correct");
+    option_elem.classList.remove("incorrect");
   }
+}
 
-  function handleOptionClick(option, questionId) {
-    console.log(`Option clicked in ${questionId}:`, option.textContent);
+function disable_options() {
+  for (let i = 0; i < 4; i++) {
+    const option_elem = document.getElementById(`o${i}`);
+    option_elem.disabled = true;
+  }
+}
 
-    const isCorrect = option.classList.contains("correctAns");
-    const questionContainer = document.getElementById(questionId);
+function enable_options() {
+  for (let i = 0; i < 4; i++) {
+    const option_elem = document.getElementById(`o${i}`);
+    option_elem.disabled = false;
+  }
+}
 
-    if (questionContainer) {
-      questionContainer.querySelectorAll(".option").forEach((opt) => {
-        opt.classList.remove("selected", "green-background", "red-background");
+function set_score() {
+  document.getElementById("score").innerText = `${score} / ${last_ques + 1}`;
+}
 
-        if (opt === option) {
-          opt.classList.add("selected");
+function set_question(idx) {
+  let was_answered = already_answered.has(idx);
 
-          if (isCorrect) {
-            opt.classList.add("green-background");
-          } else {
-            opt.classList.add("red-background");
-          }
-        } else if (opt.classList.contains("correctAns")) {
-          opt.classList.add("green-background");
+  cleanup_options_classes();
+
+  enable_options();
+
+  const q = questions[idx];
+
+  const img_elem = document.getElementById("img");
+  img_elem.src = q.image;
+
+  const title_elem = document.getElementById("title");
+  title_elem.innerText = q.question;
+
+  for (let i = 0; i < 4; i++) {
+    const option_elem = document.getElementById(`o${i}`);
+    option_elem.innerText = q.choices[i];
+
+    if (was_answered) continue;
+    option_elem.addEventListener(
+      "click",
+      (e) => {
+        e.preventDefault();
+
+        if (q.choices[i] == q.answer) {
+          option_elem.classList.add("correct");
+          already_answered.set(idx, [true, i]);
+          score++;
+        } else {
+          option_elem.classList.add("incorrect");
+          already_answered.set(idx, [false, i]);
         }
-      });
-    }
 
-    // Additional code to handle the selected option
-    // For example, check if it's the correct answer, update UI, etc.
+        disable_options();
+        set_score();
+      },
+      { signal: signal }
+    );
   }
 
-  // const cards = Array.from(document.querySelectorAll('.swiper-slide'));
-  // let score = 0;
+  if (was_answered) {
+    disable_options();
+    let [was_correct, chosen_option] = already_answered.get(idx);
+    let cName = was_correct ? "correct" : "incorrect";
+    document.getElementById(`o${chosen_option}`).classList.add(cName);
 
-  // cards.forEach((card, index) => {
+    return;
+  }
+}
 
-  //     interact(card)
-  //     .draggable({
-  //         inertia: true,
-  //         modifiers: [
-  //             interact.modifiers.restrictRect({
-  //                 restriction: 'parent',
-  //                 endOnly: true
-  //             })
-  //         ],
-  //         autoScroll: true,
-  //         onmove: (event) => {
-  //             const { target } = event;
-  //             const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-  //             const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-  //             target.style.transform = `translate(${x}px, ${y}px)`;
-  //             target.setAttribute('data-x', x);
-  //             target.setAttribute('data-y', y);
-  //         },
-  //         onend: (event) => {
-  //             const { target, dx } = event;
-  //             const x = parseFloat(target.getAttribute('data-x')) || 0;
-
-  //             // If swiped right significantly, consider it as correct
-  //             if (dx > 100) {
-  //                 // Increase score for correct answer
-  //                 score++;
-  //                 target.classList.add('correct');
-  //             }
-  //             // If swiped left significantly or not a strong right swipe, consider it wrong
-  //             if (dx < -100 || (dx > 0 && dx <= 100)) {
-  //                 target.classList.add('incorrect');
-  //             }
-
-  //             target.style.opacity = 0;
-  //             setTimeout(() => {
-  //                 target.remove();
-  //                 // Check if we're at the last card
-  //                 if (index === cards.length - 1) {
-  //                     showEndMessage();
-  //                 }
-  //             }, 500);
-
-  //             target.setAttribute('data-x', 0);
-  //             target.setAttribute('data-y', 0);
-  //         }
-  //     });
-  // });
-
-  function showEndMessage() {
-    const endMessage = document.createElement("div");
-    endMessage.classList.add("score-container");
-
-    endMessage.innerHTML = `
-            <div class="score-card">
-                <h2>Quiz Completed</h2>
-                <p>No more questions available.</p>
-                <p>Your score: ${score}</p>
-                <button class="restart-button">Restart Quiz</button> <!-- Add a restart button if needed -->
-            </div>`;
-
-    document.body.appendChild(endMessage);
-
-    endMessage
-      .querySelector(".restart-button")
-      .addEventListener("click", restartQuiz);
+function on_prev(e) {
+  if (current_question == 0) {
+    document.getElementById("prev").disabled = true;
+    document.getElementById("next").disabled = false;
+    return;
   }
 
-  // Function to restart the quiz
-  function restartQuiz() {
-    // Reset score
-    score = 0;
+  document.getElementById("next").disabled = false;
+  current_question -= 1;
 
-    // Remove the end message
-    document.querySelector(".score-container").remove();
+  cleanup_options_listener();
+  set_question(current_question);
+}
 
-    // Reinitialize the cards
-
-    cards.forEach((card) => {
-      swiper.appendSlide(card); // Add the card back to swiper
-      card.style.opacity = 1;
-    });
-    swiper.slideTo(0); // Go back to the first slide
+function on_next(e) {
+  if (current_question == last_ques) {
+    document.getElementById("next").disabled = true;
+    document.getElementById("prev").disabled = false;
+    return;
   }
-});
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     document.querySelectorAll('.option').forEach((option) => {
-//         option.addEventListener('click', (event) => {
-//             console.log('Option clicked:', event.target.textContent);
-//         });
-//     });
-// });
+  document.getElementById("prev").disabled = false;
+  current_question += 1;
+
+  cleanup_options_listener();
+  set_question(current_question);
+}
+
+function main() {
+  set_score();
+  set_question(0);
+
+  document.getElementById("prev").addEventListener("click", on_prev);
+  document.getElementById("next").addEventListener("click", on_next);
+}
+
+main();
