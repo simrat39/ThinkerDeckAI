@@ -264,55 +264,6 @@ app.post('/places/generate_questions', async (req, res) => {
 
 
 
-// Places Endpoints and Google API //
-// // Array of Place IDs for national parks (replace with actual IDs) //
-// const nationalParks = [
-//   'ChIJVVVVVVXlUVMRu-GPNDD5qKw',
-//   'ChIJh0vJ7ubNkFQRGKSRT_uh9Fw',
-//   'ChIJxeyK9Z3wloAR_gOA7SycJC0',
-//   'ChIJFU2bda4SM4cRKSCRyb6pOB8',
-//   'ChIJ2fhEiNDqyoAR9VY2qhU6Lnw',
-//   'ChIJ6QNZReR5aYcRF4KOp0PuJ_o',
-//   'ChIJ0XIEzwmAjlQRUXl9squHIAA',
-//   'ChIJlfUUPk8qzYcR3UgpdjlmLVg'
-
-// ];
-
-
-// app.get('/getNationalParkImage', async (req, res) => {
-//   try {
-//       const randomIndex = Math.floor(Math.random() * nationalParks.length);
-//       const placeId = nationalParks[randomIndex];
-//       const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc';
-
-//       // Fetch details from Google Places API
-//       const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&key=${apiKey}`;
-//       const detailsResponse = await nodeFetch(detailsUrl);
-//       const detailsData = await detailsResponse.json();
-
-//       // Check for photos in the response
-//       if (!detailsData.result.photos || detailsData.result.photos.length === 0) {
-//           throw new Error('No photos found for this place');
-//       }
-
-//       // Get the photo reference
-//       const photoReference = detailsData.result.photos[0].photo_reference;
-
-//       // Construct the URL for the photo
-//       const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
-
-//       res.json({ imageUrl: photoUrl });
-//   } catch (error) {
-//       console.error('Error fetching park image:', error);
-//       res.status(500).send(`Error fetching park image: ${error.message}`);
-//   }
-// });
-
-
-
-
-
-
 
 /// PLACES ENDS HERE ///
 
