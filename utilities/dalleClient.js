@@ -19,10 +19,8 @@ export default async function generateImages(questions) {
             const url = response.data[0].url;
             image_urls.push(url);            
         }
-        console.log("image urls: " + image_urls);
         return image_urls;
     } catch (error) {
-        console.error("Error generating images:", error);
         throw error;
     }
 }

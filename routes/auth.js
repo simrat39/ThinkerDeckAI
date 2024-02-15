@@ -4,6 +4,8 @@ import LocalStrategy from "passport-local";
 import session from "express-session";
 import MongoDBStore from "connect-mongodb-session";
 import { DatabaseClient } from "../utilities/databaseClient.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const connection = new DatabaseClient();
 const router = Router()
@@ -11,7 +13,8 @@ const router = Router()
 // Setup mongo store
 let mongoSessionStore = new MongoDBStore(session);
 const mongoStore = new mongoSessionStore({
-  uri: `mongodb+srv://gurtejmalik:${process.env.MONGO_KEY}@generativeai.qqdsbwh.mongodb.net`,
+  uri: process.env.MONGODB_URI || `mongodb://localhost:27017`,
+  dbName: "generativeai",
   collection: "sessions",
 });
 
@@ -89,7 +92,7 @@ router.get("/signup", function (req, res) {
   return;
 });
 
-router.post('/signup', async function(req, res) {
+router.post('/signup', async function(req, res, next) {
   try {
       const User = connection.models.User;
 

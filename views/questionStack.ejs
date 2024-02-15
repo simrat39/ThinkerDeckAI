@@ -19,6 +19,7 @@
           <div class="swiper-slide">
             <div class="question-card" id="ques<%= questionCounter %>">
               <p class="question-text"><%= question.question %></p>
+              <img src="<%= question.image %>" alt="" srcset="" width="100" height="100">
               <ul class="options">
                 <% if (question.choices && question.choices.length > 0) { %>
                   <% question.choices.forEach(function(option) { %>
