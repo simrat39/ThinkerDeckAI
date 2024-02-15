@@ -13,7 +13,7 @@ const router = Router()
 // Setup mongo store
 let mongoSessionStore = new MongoDBStore(session);
 const mongoStore = new mongoSessionStore({
-  uri: process.env.MONGODB_URI || `mongodb://localhost:27017`,
+  uri: process.env.MONGODB_URI || `mongodb://127.0.0.1:27017/`,
   dbName: "generativeai",
   collection: "sessions",
 });
