@@ -53,18 +53,17 @@
                         button.addEventListener('click', function () {
                             currentCategory = category.name; // Store the current category
                             document.getElementById('category-buttons').style.display = 'none';
-                            if (category.name === 'North American National Parks') {
-                                document.getElementById('nationalParks').style.display = 'block';
-                                fetchNextPark(); // Fetch the first park image
-                            }
-                            // Fetch the first question for the category
-                            generateQuestionsForCategory(currentCategory);
+                            document.getElementById('nationalParks').style.display =
+                                'block'; // Show image block for any category
+                            generateQuestionsForCategory(
+                                currentCategory); // Fetch the first question for the category
                         });
                         categoryButtonsDiv.appendChild(button);
                     });
                 })
                 .catch(error => console.error('Error fetching categories:', error));
         }
+
 
         // Handle start exploring button click
         document.getElementById('startExploringBtn').addEventListener('click', function () {
@@ -85,35 +84,41 @@
         }
 
         function generateQuestionsForCategory(category) {
-            fetch('/places/generate_questions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        category: category,
-                        num_questions: 1
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const questionContainer = document.getElementById('question-container');
-                    const question = data.questions[0];
-                    const imageUrl = data.photoUrl; // Get the image URL from the response
+    fetch('/places/generate_questions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            category: category,
+            num_questions: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const questionContainer = document.getElementById('question-container');
+        const question = data.questions[0];
+        const imageUrl = data.photoUrl;
 
-                    // Display the question
-                    questionContainer.innerHTML =
-                        `<p>${question.question}</p><img src="${imageUrl}" alt="Place Image" style="max-width: 100%; height: auto;">`;
+        // Update the question container with the question and image
+        questionContainer.innerHTML = `
+            <div style="text-align: center; width: 100%;">
+                <img src="${imageUrl}" alt="Place Image">
+                <div class="question-backdrop">
+                    <p class="question-text">${question.question}</p>
+                </div>
+            </div>
+        `;
 
-                    // Emit the question options to players
-                    socket.emit('questionOptions', {
-                        options: question.choices
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
+        // Emit the question options and the image URL to clients
+        socket.emit('question-options', { options});
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
 
 
 

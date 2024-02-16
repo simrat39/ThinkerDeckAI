@@ -35,19 +35,43 @@
         document.getElementById('question-options').style.display = 'block';
     });
 
-    // Listen for question options update
-    socket.on('questionOptions', (data) => {
-        const optionsContainer = document.getElementById('question-options');
-        optionsContainer.innerHTML = ''; // Clear existing options
+   // Listen for question options update
+   socket.on('question-options', (data) => {
+    console.log(data);
+  // Access the container where the question options (choices) will be displayed
+  const optionsContainer = document.getElementById('question-options');
+  optionsContainer.innerHTML = ''; // Clear any existing options
 
-        // Ensure data.options is the expected structure, e.g., an array of option strings
-        data.options.forEach((option, index) => {
-            const button = document.createElement('button');
-            button.innerText = option; // Directly using option as button text
-            button.onclick = function() { /* Handle option selection */ };
-            optionsContainer.appendChild(button);
-        });
-    });
+  // Access the question object from the received data
+  data.options.forEach((option) => {
+    // Create a new button element for each choice
+    const button = document.createElement('button');
+    button.innerText = option; // Set the text of the button to the current option
+    button.onclick = function() {
+      // Define what happens when the button is clicked
+      // This is where you might handle the player's answer selection
+      console.log(`Option selected: ${option}`);
+      // You can emit an event back to the server with the selected option if needed
+      // socket.emit('answer-selected', { option: option });
+    };
+    // Append the newly created button to the options container
+    optionsContainer.appendChild(button);
+  });
+
+  // Display the question text
+  // Assuming there's an element with id 'question-text' to show the question
+  const questionTextElement = document.getElementById('question-text');
+  if(questionTextElement) { // Check if the element exists
+    questionTextElement.innerText = question.question; // Set the question text
+  }
+
+  // Make sure the options container is visible to display the options
+  optionsContainer.style.display = 'block';
+});
+
+
+
+
 </script>
 
 

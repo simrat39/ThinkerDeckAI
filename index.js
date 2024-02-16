@@ -7,12 +7,14 @@ import nodeFetch from 'node-fetch';
 import express from "express";
 import multer from "multer";
 import path from "path";
+import cors from 'cors';
 import authRouter from "./routes/auth.js"
 import DatabaseConnection from "./utilities/database_connection.js"
 import logged_in_check from "./utilities/logged_in_check_middleware.js";
 import generateImages from "./utilities/dalleClient.js";
 import generateQues from "./utilities/gptClient.js";
 import generateQuesPlaces from "./utilities/gptClient_places.js";
+
 
 
 // const connection = new DatabaseConnection()
@@ -26,6 +28,13 @@ const placesDbConnection = DatabaseConnection.getConnection("places");
 
 const app = express();
 const upload = multer();
+
+const corsOptions = {
+  origin: '*', // This allows all domains. For production, replace '*' with your client's domain for security.
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
+app.use(cors(corsOptions));
 
 // creates HTTP server and attach the Express app to it
 const httpServer = createServer(app); 
@@ -247,8 +256,17 @@ app.post('/places/generate_questions', async (req, res) => {
               const photoReference = detailsJson.result.photos[0].photo_reference;
               const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
 
+              const options = questions[0].choices;
               // Send back the question, answer, place_id, and photo URL
+              console.log({ questions, photoUrl }); // See what you're about to send
+             // console.log(questions[0].choices);
+              console.log(options);
+
+          
+              io.emit('question-options', { options: options, question: questions[0].question });
+
               res.json({ questions, photoUrl });
+              
           } else {
               throw new Error('No photos found for this place');
           }
