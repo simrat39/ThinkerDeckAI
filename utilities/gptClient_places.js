@@ -20,7 +20,9 @@ export default async function generateQuesPlaces(category, num_questions) {
     {
       role: "user",
       content: `Generate ${num_questions} questions with multiple-choice answers based on the topic: '${category}'. Each question should be different.
-      For example and this is JUST AN EXAMPLE, do not copy this, if the category is North American National Parks, then a potential
+      Try to come up with different answers as much as you can.
+      For example and this is JUST AN EXAMPLE, do not copy this, if the category is North American National Parks (this should include ALL national parks
+        in Canada and the United States of America), then a potential
       sample question could be Which national park is famous for its biodiversity and is also known as the “International Biosphere Reserve”?
       And the options might be A) Great Smoky Mountains National Park, B) Yellowstone National Park
       C) Thaddeus Kosciuszko National Memorial D) The Grand Canyon  `,
