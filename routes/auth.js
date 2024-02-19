@@ -3,12 +3,12 @@ import passport from "passport";
 import LocalStrategy from "passport-local";
 import session from "express-session";
 import MongoDBStore from "connect-mongodb-session";
-import { DatabaseClient } from "../utilities/databaseClient.js";
 import dotenv from "dotenv";
+import MongoService from "../utilities/mongo_service.js";
 dotenv.config();
 
-const connection = new DatabaseClient();
-const router = Router()
+const mongo = new MongoService();
+const router = Router();
 
 // Setup mongo store
 let mongoSessionStore = new MongoDBStore(session);
@@ -18,38 +18,38 @@ const mongoStore = new mongoSessionStore({
   collection: "sessions",
 });
 
-mongoStore.on('error', (error) => {
+mongoStore.on("error", (error) => {
   console.log("Session store error: " + error);
 });
 
 // Passport Local Strategy for authentication
-let strategy = new LocalStrategy(async function(username, password, done) {
+let strategy = new LocalStrategy(async function (username, password, done) {
   try {
-      const user = await connection.models.User.findOne({ username });
-      if (!user || user.password !== password) {
-          return done(null, false, { message: 'Incorrect username or password.' });
-      }
-      return done(null, user);
+    const user = await mongo.models.User.findOne({ username });
+    if (!user || user.password !== password) {
+      return done(null, false, { message: "Incorrect username or password." });
+    }
+    return done(null, user);
   } catch (error) {
-      return done(error);
+    return done(error);
   }
 });
 passport.use(strategy);
 
 // Serialization and deserialization of user
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user.id);
 });
 
-passport.deserializeUser(async function(id, done) {
+passport.deserializeUser(async function (id, done) {
   try {
-      const user = await connection.models.User.findById(id);
-      if (!user) {
-          return done(null, false);
-      }
-      return done(null, user);
+    const user = await mongo.models.User.findById(id);
+    if (!user) {
+      return done(null, false);
+    }
+    return done(null, user);
   } catch (error) {
-      return done(error);
+    return done(error);
   }
 });
 
@@ -92,36 +92,37 @@ router.get("/signup", function (req, res) {
   return;
 });
 
-router.post('/signup', async function(req, res, next) {
+router.post("/signup", async function (req, res, next) {
   try {
-      const User = connection.models.User;
+    const User = mongo.models.User;
 
-        // Creating a new user document
-        const newUser = new User({
-            username: req.body.username,
-            password: req.body.password
-        });
-        await newUser.save();
+    // Creating a new user document
+    const newUser = new User({
+      username: req.body.username,
+      password: req.body.password,
+    });
+    await newUser.save();
 
-        // Logging in the new user
-        req.login(newUser, function(err) {
-            if (err) { 
-                return next(err); 
-            }
-            res.redirect('/');
-        });
+    // Logging in the new user
+    req.login(newUser, function (err) {
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/");
+    });
   } catch (error) {
-      console.error('Error signing up:', error);
-      res.redirect('/signup');
+    console.error("Error signing up:", error);
+    res.redirect("/signup");
   }
 });
 
-router.post('/logout', function(req, res, next) {
-    req.logout(function(err) {
-      if (err) { return next(err); }
-      res.redirect('/');
-    });
+router.post("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
   });
-
+});
 
 export default router;
