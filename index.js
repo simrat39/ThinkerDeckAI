@@ -2,13 +2,12 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import authRouter from "./routes/auth.js";
-import { DatabaseClient } from "./utilities/databaseClient.js";
 import logged_in_check from "./utilities/logged_in_check_middleware.js";
-import generateImages from "./utilities/dalleClient.js";
-import generateQues from "./utilities/gptClient.js";
+import generateImages from "./utilities/dalle_service.js";
+import generateQues from "./utilities/gpt_service.js";
+import MongoService from "./utilities/mongo_service.js"
 
-const connection = new DatabaseClient();
-//console.log(connection);
+const mongo = new MongoService();
 const app = express();
 const upload = multer();
 
@@ -50,10 +49,11 @@ app.post(
         generatedQuestions[i].image = generatedImages[i];
       }
 
-      console.log(generatedQuestions);
+      // Add category to mongodb
+      const mongo_category = await mongo.add_category(subject)
 
       // save quiz to database
-      // await connection.saveQuiz(subject, generatedQuestions);
+      await mongo.save_quiz(mongo_category, generatedQuestions)
 
       // Render the question stack view with the generated questions
       res.render("questionStack", { questions: generatedQuestions });
@@ -126,45 +126,45 @@ app.get("/generate-quiz", logged_in_check, (req, res) => {
   res.render("generateQuiz");
 });
 
-// Endpoint to display all categories
-app.get("/categories", logged_in_check, async (req, res) => {
-  try {
-    const [categories] = await connection
-      .promise()
-      .query("SELECT * FROM Categories");
-    res.render("categories", { categories }); // Pass the categories to the EJS template
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("An error occurred while fetching the categories.");
-  }
-});
+// // Endpoint to display all categories
+// app.get("/categories", logged_in_check, async (req, res) => {
+//   try {
+//     const [categories] = await connection
+//       .promise()
+//       .query("SELECT * FROM Categories");
+//     res.render("categories", { categories }); // Pass the categories to the EJS template
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("An error occurred while fetching the categories.");
+//   }
+// });
 
-// Endpoint to display questions for a category
-app.get(
-  "/category/:category_id/questions",
-  logged_in_check,
-  async (req, res) => {
-    const { category_id } = req.params;
-    try {
-      const [questions] = await connection
-        .promise()
-        .query("SELECT * FROM Questions WHERE category_id = ?", [category_id]);
-      // Include options for each question
-      for (const question of questions) {
-        const [options] = await connection
-          .promise()
-          .query("SELECT * FROM Options WHERE question_id = ?", [
-            question.question_id,
-          ]);
-        question.options = options;
-      }
-      res.render("questions", { questions }); // Ensure you have a 'questionsPage.ejs' file in your views directory
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("An error occurred while fetching questions.");
-    }
-  }
-);
+// // Endpoint to display questions for a category
+// app.get(
+//   "/category/:category_id/questions",
+//   logged_in_check,
+//   async (req, res) => {
+//     const { category_id } = req.params;
+//     try {
+//       const [questions] = await connection
+//         .promise()
+//         .query("SELECT * FROM Questions WHERE category_id = ?", [category_id]);
+//       // Include options for each question
+//       for (const question of questions) {
+//         const [options] = await connection
+//           .promise()
+//           .query("SELECT * FROM Options WHERE question_id = ?", [
+//             question.question_id,
+//           ]);
+//         question.options = options;
+//       }
+//       res.render("questions", { questions }); // Ensure you have a 'questionsPage.ejs' file in your views directory
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).send("An error occurred while fetching questions.");
+//     }
+//   }
+// );
 
 const port = 8000;
 app.listen(port, () => {
