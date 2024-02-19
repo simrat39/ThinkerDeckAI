@@ -5,7 +5,7 @@ import authRouter from "./routes/auth.js";
 import logged_in_check from "./utilities/logged_in_check_middleware.js";
 import generateImages from "./utilities/dalle_service.js";
 import generateQues from "./utilities/gpt_service.js";
-import MongoService from "./utilities/mongo_service.js"
+import MongoService from "./utilities/mongo_service.js";
 
 const mongo = new MongoService();
 const app = express();
@@ -24,11 +24,14 @@ app.post(
   async function (req, res) {
     try {
       // Extract data from the request
-      const subject = req.body.subject;
+      const category = req.body.category;
+      const title = req.body.title;
       const num_ques = req.body.num_ques;
 
+      console.log(category, title, num_ques);
+
       // validate input parameters
-      if (subject == "" || num_ques == "") {
+      if (category == "" || num_ques == "" || title == "") {
         res.send(`
         <script>
             alert("Form fields cannot be empty.");
@@ -39,7 +42,9 @@ app.post(
       }
 
       // Generate questions through GPT-4
-      let generatedQuestions = await generateQues(subject, num_ques);
+      let generatedQuestions = await generateQues(category, title, num_ques);
+
+      console.log(generatedQuestions);
 
       // Generate images through DALL-E 2
       const generatedImages = await generateImages(generatedQuestions);
@@ -50,10 +55,10 @@ app.post(
       }
 
       // Add category to mongodb
-      const mongo_category = await mongo.add_category(subject)
+      const mongo_category = await mongo.add_category(category);
 
       // save quiz to database
-      await mongo.save_quiz(mongo_category, generatedQuestions)
+      await mongo.save_quiz(mongo_category, title, generatedQuestions);
 
       // Render the question stack view with the generated questions
       res.render("questionStack", { questions: generatedQuestions });
@@ -127,44 +132,24 @@ app.get("/generate-quiz", logged_in_check, (req, res) => {
 });
 
 // // Endpoint to display all categories
-// app.get("/categories", logged_in_check, async (req, res) => {
-//   try {
-//     const [categories] = await connection
-//       .promise()
-//       .query("SELECT * FROM Categories");
-//     res.render("categories", { categories }); // Pass the categories to the EJS template
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("An error occurred while fetching the categories.");
-//   }
-// });
+app.get("/quizzes", logged_in_check, async (req, res) => {
+  try {
+    const quizzes = await mongo.get_all_quizzes();
+    res.render("quizzes", { quizzes });
+  } catch (e) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching the quizzes.");
+  }
+});
 
 // // Endpoint to display questions for a category
-// app.get(
-//   "/category/:category_id/questions",
-//   logged_in_check,
-//   async (req, res) => {
-//     const { category_id } = req.params;
-//     try {
-//       const [questions] = await connection
-//         .promise()
-//         .query("SELECT * FROM Questions WHERE category_id = ?", [category_id]);
-//       // Include options for each question
-//       for (const question of questions) {
-//         const [options] = await connection
-//           .promise()
-//           .query("SELECT * FROM Options WHERE question_id = ?", [
-//             question.question_id,
-//           ]);
-//         question.options = options;
-//       }
-//       res.render("questions", { questions }); // Ensure you have a 'questionsPage.ejs' file in your views directory
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).send("An error occurred while fetching questions.");
-//     }
-//   }
-// );
+app.get("/quizzes/:quiz_id", logged_in_check, async (req, res) => {
+  const { quiz_id } = req.params;
+  const quiz = await mongo.get_quiz(quiz_id);
+  const questions = quiz.questions
+
+  res.render("questions", { questions });
+});
 
 const port = 8000;
 app.listen(port, () => {

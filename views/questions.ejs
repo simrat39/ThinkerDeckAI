@@ -9,16 +9,14 @@
 </head>
 <body>
     <% questions.forEach(function(question) { %>
-        <div>
-            <h2><%= question.question_text %></h2>
+        <div class="card">
+            <h2><%= question.question %></h2>
             <ul>
-                <% question.options.forEach(function(option) { %>
-                    <li class="<%= option.is_correct ? 'correct' : '' %>"><%= option.option_text %></li>
+                <% question.choices.forEach(function(option) { %>
+                    <li class="<%= option === question.answer ? 'correct' : '' %>"><%= option %></li>
                 <% }); %>
             </ul>
         </div>
     <% }); %>
-
-    <script src="/scripts/questions.js"></script>
 </body>
 </html>

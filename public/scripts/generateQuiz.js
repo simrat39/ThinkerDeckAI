@@ -4,14 +4,14 @@ document.getElementById("submit").addEventListener("click", async (e) => {
   document.getElementById("submit").style.display = 'none'
   document.getElementById("loading").style.display = 'block'
 
-  const subject = document.getElementById("subject").value;
+  const category = document.getElementById("category").value;
+  const title = document.getElementById("title").value;
   const num_ques = document.getElementById("num_ques").value;
-  // const notes = document.getElementById("notes").files[0];
 
   const fd = new FormData();
-  fd.append("subject", subject);
+  fd.append("category", category);
+  fd.append("title", title);
   fd.append("num_ques", num_ques);
-  // fd.append("notes", notes);
 
   const ret = await fetch("/get_questions", {
     method: "POST",
@@ -20,7 +20,6 @@ document.getElementById("submit").addEventListener("click", async (e) => {
 
   const retJson = await ret.text();
 
-  console.log(retJson);
   document.write(retJson);
 
   setTimeout(() => {
@@ -32,11 +31,3 @@ document.getElementById("submit").addEventListener("click", async (e) => {
     );
   }, 500);
 });
- 
-// document.addEventListener('DOMContentLoaded', () => {
-//   document.querySelectorAll('.option').forEach((option) => {
-//       option.addEventListener('click', (event) => {
-//           console.log('Option clicked:', event.target.textContent);
-//       });
-//   });
-// });

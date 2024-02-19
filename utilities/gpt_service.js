@@ -4,7 +4,7 @@ dotenv.config();
 
 const gptClient = new OpenAI({ apiKey: process.env.GPT_API_KEY });
 
-export default async function generateQues(subject, num_ques) {
+export default async function generateQues(category, title, num_ques) {
   // Define the prompt for GPT-4
   const messages = [
     {
@@ -14,7 +14,8 @@ export default async function generateQues(subject, num_ques) {
     },
     {
       role: "user",
-      content: `Generate ${num_ques} questions with multiple-choice answers based on the topic: '${subject}'. 
+      content: `Generate ${num_ques} questions with multiple-choice answers based on the topic: '${category}'.
+                The title of the quiz is '${title}' (use this as more context).
                 Each question should be different. After each question, include an instruction to display a 
                 DALL-E 2-generated image related to the question.`,
     },
@@ -41,7 +42,7 @@ export default async function generateQues(subject, num_ques) {
     },
     {
       role: "system",
-      content: `Here is the topic:\n${subject}`,
+      content: `Here is the topic:\n${category}`,
     },
   ];
 
@@ -52,7 +53,7 @@ export default async function generateQues(subject, num_ques) {
   });
 
   // Log the GPT-4 completion content
-  // console.log("GPT-4 Completion Content:", completion.choices[0].message.content);
+  console.log("GPT-4 Completion Content:", completion.choices[0].message.content);
 
   // Parse the returned questions
   const generatedQuestions = JSON.parse(

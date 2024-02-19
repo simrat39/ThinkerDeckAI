@@ -20,12 +20,12 @@ h1 {
     margin-bottom: 30px;
 }
 
-#categories-list {
+#quizzes-list {
     list-style: none;
     padding: 0;
 }
 
-#categories-list li {
+#quizzes-list li {
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px);
     margin-bottom: 10px;
@@ -35,13 +35,13 @@ h1 {
     border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-#categories-list li a {
+#quizzes-list li a {
     color: #665807; 
     text-decoration: none;
     transition: color 0.3s;
 }
 
-#categories-list li a:hover {
+#quizzes-list li a:hover {
     color: #ffce00;
 }
 

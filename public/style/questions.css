@@ -11,7 +11,7 @@ body {
     color: rgb(115, 87, 9);
 }
 
-div {
+.card {
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px);
     border-radius: 20px;

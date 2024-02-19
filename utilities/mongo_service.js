@@ -37,10 +37,32 @@ class MongoService {
     return newCat;
   }
 
-  async save_quiz(category, questions) {
+  async get_all_quizzes() {
+    const ret = []
+
+    const categories = await this.models.Category.find()
+
+    for (const category of categories) {
+      const c_quiz = await this.models.Quiz.find({category_id: category})
+      
+      ret.push({
+        category: category,
+        quizzes: c_quiz
+      })
+    }
+
+    return ret
+  }
+
+  async get_quiz(id) {
+    const ret = await this.models.Quiz.findById(id)
+    return ret
+  }
+
+  async save_quiz(category, title, questions) {
     const q = new this.models.Quiz({
       category_id: category,
-      title: "Title",
+      title: title,
       questions: questions
     })
 
