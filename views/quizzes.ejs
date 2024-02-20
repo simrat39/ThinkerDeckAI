@@ -8,13 +8,15 @@
 </head>
 <body>
     <h1>Quizzes</h1>
-    <ul id="quizzes-list">
+    <div id="quizzes-list">
         <% quizzes.forEach(function(category) { %>
-            <h2><%= category.category.name %></h2>
-            <% category.quizzes.forEach(function(quiz) { %>
-                <a href="/quizzes/<%= quiz._id %>"><%= quiz.title %></a></div>
-         <%   }); %>
+            <div class="card">
+                <h2><%= category.category.name %></h2>
+                <% category.quizzes.forEach(function(quiz) { %>
+                    <a href="/quizzes/<%= quiz._id %>"><%= quiz.title %></a>
+                <%   }); %>
+            </div>
         <% }); %>
-    </ul>
+    </div>
 </body>
 </html>
