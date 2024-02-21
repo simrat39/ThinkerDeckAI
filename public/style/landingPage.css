@@ -25,7 +25,7 @@ body {
 .generate-quiz-btn {
     padding: 10px 20px;
     margin: 10px 0;
-    background-color: #847109; /* Lemon yellow */
+    background-color: #847109; 
     border: none;
     border-radius: 20px;
     color: white;
@@ -38,8 +38,30 @@ body {
     transform: translateY(-2px);
 }
 
-/* Ensure focus outline matches the theme */
 .generate-quiz-btn:focus {
+    outline: none;
+    border: 1px solid #504105;
+}
+
+
+
+.go-to-places {
+    padding: 10px 20px;
+    margin: 10px 0;
+    background-color: #847109; 
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.go-to-places:hover {
+    background-color: #cbae38;
+    transform: translateY(-2px);
+}
+
+.go-to-places:focus {
     outline: none;
     border: 1px solid #504105;
 }

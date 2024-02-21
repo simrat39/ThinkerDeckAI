@@ -1,0 +1,85 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(rgba(255, 173, 96, 0.85), rgba(255, 126, 95, 0.85));
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+
+.welcome-banner {
+    background: rgba(255, 204, 153, 0.8); 
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-size: 2em;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 174, 123, 0.6); 
+    text-align: center;
+    color: #501B1D; 
+}
+
+
+
+/* Container for buttons */
+.button-container {
+    display: flex;
+    justify-content: center; 
+    gap: 20px; 
+}
+
+.single-player, .multi-player {
+    padding: 10px 20px;
+    margin: 0; 
+    background-color: #FF6B6B;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.single-player:hover, .multi-player:hover {
+    background-color: #FFD56B;
+    transform: translateY(-2px);
+}
+
+.single-player:focus, .multi-player:focus {
+    outline: none;
+    border: 1px solid #FF9276;
+}
+
+
+.back-to-home {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 1000; 
+}
+
+.back-to-home-btn {
+    padding: 10px 20px;
+    background-color: #FF6B6B; 
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    text-decoration: none;
+    font-family: 'Arial', sans-serif; 
+}
+
+.back-to-home-btn:hover {
+    background-color: #FFD56B; 
+    transform: translateY(-2px); 
+}
+
+.back-to-home-btn:focus {
+    outline: none;
+    border: 1px solid #FF9276;
+}

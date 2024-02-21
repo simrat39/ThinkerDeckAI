@@ -70,6 +70,35 @@ input:focus, button:focus {
     border: 1px solid #ffce00;
 }
 
+.back-to-home {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+}
+
+.back-to-home-btn {
+    padding: 10px 20px;
+    margin: 10px 0;
+    background-color: #ffd700; 
+    border: none;
+    border-radius: 20px;
+    color: rgb(116, 82, 9);
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    text-decoration: none;
+}
+
+.back-to-home-btn:hover {
+    background-color: #ffce00;
+    transform: translateY(-2px);
+}
+
+.back-to-home-btn:focus {
+    outline: none;
+    border: 1px solid #ffce00;
+}
+
+
 @media (max-width: 600px) {
     form {
         width: 80%;

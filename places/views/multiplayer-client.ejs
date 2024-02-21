@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Places-Multiplayer</title>
+  <link rel="stylesheet" href="/places/style/multiplayer-client.css">
+</head>
+
+<body>
+
+
+  <div id="nickname-section">
+    <input type="text" id="nickname" placeholder="Enter your nickname">
+    <button id="join-game">Join Game</button>
+  </div>
+
+  <div id="question-options" style="display:none;">
+    <!-- Options dynamically loaded here -->
+  </div>
+
+  <script src="http://192.168.0.16:8000/socket.io/socket.io.js">
+    // bcit: 10.65.65.13
+    // home: 192.168.0.16
+    // cell data: 172.20.10.4
+    // find ip address: ipconfig
+  </script>
+  <script>
+    const socket = io();
+    let playerScore = 0;
+
+    document.getElementById('join-game').addEventListener('click', function () {
+      const nickname = document.getElementById('nickname').value;
+      socket.emit('playerJoined', {
+        nickname: nickname
+      });
+      document.getElementById('nickname-section').style.display = 'none';
+      document.getElementById('question-options').style.display = 'block';
+    });
+
+    // Listen for question options update
+    socket.on('question-options', (data) => {
+      const optionsContainer = document.getElementById('question-options');
+      optionsContainer.innerHTML = '';
+
+      data.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.innerText = option;
+        button.onclick = function () {
+          // disable all buttons after a choice has been made
+          document.querySelectorAll('#question-options button').forEach(btn => {
+            btn.disabled = true;
+          });
+
+          if (button.innerText === data.correctAnswer) {
+            console.log("Correct answer selected!");
+            button.style.backgroundColor = 'green';
+
+            playerScore += 1;
+            // Emit an event to the server with the updated score and player nickname
+            socket.emit('updateScore', {
+              nickname: document.getElementById('nickname').value,
+              score: playerScore
+            });
+          } else {
+            console.log("Incorrect answer, try again!");
+            button.style.backgroundColor = 'red';
+          }
+        };
+        optionsContainer.appendChild(button);
+      });
+
+      document.getElementById('question-text').innerText = data.question;
+
+      optionsContainer.style.display = 'block';
+    });
+  </script>
+
+
+  </script>
+
+
+
+
+
+
+</body>
+
+</html>
