@@ -3,7 +3,8 @@ import { DatabaseClient } from "./database_client.js";
 
 class MongoService {
   /**
-   * @param {mongoose.Connection} db_conn
+   * MongoService constructor.
+   * @param {mongoose.Connection} db_conn - The MongoDB connection.
    */
   constructor() {
     if (!MongoService.instance) {
@@ -21,7 +22,9 @@ class MongoService {
   }
 
   /**
-   * @param {string} category
+   * Add a new category.
+   * @param {string} category - The name of the category to add.
+   * @returns {Promise<mongoose.Document>} - A promise that resolves to the newly added category.
    */
   async add_category(category) {
     const current = await this.models.Category.findOne({ name: category });
@@ -37,6 +40,10 @@ class MongoService {
     return newCat;
   }
 
+  /**
+   * Get all quizzes grouped by category.
+   * @returns {Promise<Array>} - A promise that resolves to an array of objects representing categories and quizzes.
+   */
   async get_all_quizzes() {
     const ret = []
 
@@ -54,11 +61,22 @@ class MongoService {
     return ret
   }
 
+  /**
+   * Get a quiz by its ID.
+   * @param {string} id - The ID of the quiz.
+   * @returns {Promise<mongoose.Document|null>} - A promise that resolves to the quiz document, or null if not found.
+   */
   async get_quiz(id) {
     const ret = await this.models.Quiz.findById(id)
     return ret
   }
 
+  /**
+   * Save a quiz to the database.
+   * @param {string} category - The category ID of the quiz.
+   * @param {string} title - The title of the quiz.
+   * @param {Array} questions - An array of questions for the quiz.
+   */
   async save_quiz(category, title, questions) {
     const q = new this.models.Quiz({
       category_id: category,
@@ -69,6 +87,9 @@ class MongoService {
     await q.save()
   }
 
+  /**
+   * Create MongoDB schemas for User, Category, and Quiz.
+   */
   create_schemas() {
     // user schema
     const userSchema = new mongoose.Schema({

@@ -17,6 +17,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
 app.use("/", authRouter);
 
+/**
+ * Route handler for generating questions
+ */
 app.post(
   "/get_questions",
   logged_in_check,
@@ -69,6 +72,10 @@ app.post(
   }
 );
 
+
+/**
+ * Route to display a set of dummy questions.
+ */
 app.get("/questions", logged_in_check, (req, res) => {
   const dummyQuestions = [
     {
@@ -122,16 +129,25 @@ app.get("/questions", logged_in_check, (req, res) => {
   res.render("questionStack", { questions: dummyQuestions });
 });
 
+
+/**
+ * Route for the landing page.
+ */
 app.get("/", (req, res) => {
   console.log(!!req.user);
   res.render("landingPage", { loggedIn: !!req.user });
 });
 
+/**
+ * Route to generate a quiz.
+ */
 app.get("/generate-quiz", logged_in_check, (req, res) => {
   res.render("generateQuiz");
 });
 
-// // Endpoint to display all categories
+/**
+ * Route to display all quiz categories.
+ */
 app.get("/quizzes", logged_in_check, async (req, res) => {
   try {
     const quizzes = await mongo.get_all_quizzes();
@@ -142,7 +158,9 @@ app.get("/quizzes", logged_in_check, async (req, res) => {
   }
 });
 
-// // Endpoint to display questions for a category
+/**
+ * Route to display questions for a specific quiz.
+ */
 app.get("/quizzes/:quiz_id", logged_in_check, async (req, res) => {
   const { quiz_id } = req.params;
   const quiz = await mongo.get_quiz(quiz_id);
@@ -151,6 +169,9 @@ app.get("/quizzes/:quiz_id", logged_in_check, async (req, res) => {
   res.render("questions", { questions });
 });
 
+/**
+ * Start the server.
+ */
 const port = 8000;
 app.listen(port, () => {
   console.log("Running on port " + port);

@@ -4,6 +4,11 @@ dotenv.config();
 
 const dalleClient = new OpenAI({ apiKey: process.env.DALLE_API_KEY });
 
+/**
+ * Generates images corresponding to the given questions.
+ * @param {Array} questions - An array of question objects.
+ * @returns {Promise<Array>} - A promise that resolves to an array of image URLs.
+ */
 export default async function generateImages(questions) {
   try {
     let image_urls = [];

@@ -4,6 +4,13 @@ dotenv.config();
 
 const gptClient = new OpenAI({ apiKey: process.env.GPT_API_KEY });
 
+/**
+ * Generates quiz questions based on the provided category, title, and number of questions.
+ * @param {string} category - The topic or category for the quiz questions.
+ * @param {string} title - The title of the quiz.
+ * @param {number} num_ques - The number of questions to generate.
+ * @returns {Promise<Array>} - A promise that resolves to an array of generated quiz questions in JSON format.
+ */
 export default async function generateQues(category, title, num_ques) {
   // Define the prompt for GPT-4
   const messages = [
