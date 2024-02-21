@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/style/quizResults.css">
+  <title>Quiz Results</title>
+</head>
+<body>
+  <div class="container">
+    <h2>Quiz Results</h2>
+    <div class="content-box">
+      <p id="message-label">Welcome, <%= req.user.username %>!</p>
+      <p id="score-label">Score:</p>
+      <p id="percentage-label">Percentage:</p>
+    </div>
+    <button
+        class="home-btn"
+        onclick="location.href='/'"
+      >
+        Home
+      </button>
+  </div>
+
+  <script src="/scripts/quizResults.js"></script>
+</body>
+</html>
