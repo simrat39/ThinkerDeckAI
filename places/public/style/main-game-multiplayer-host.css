@@ -10,47 +10,117 @@ body {
     margin: 0;
 }
 
-#nextParkBtn {
-    position: fixed;
+#scoreboard {
+    width: 20%; 
+    height: auto; 
+    padding: 20px;
+    margin: 20px;
+    background: rgba(255, 255, 255, 0.85); 
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: fixed; 
     right: 20px;
-    bottom: 20px;
+    top: 20px; 
+    overflow-y: auto;
+    z-index: 3; 
+}
+
+#nextParkBtn  {
     padding: 10px 20px;
-    background-color: #4CAF50; /* Example color */
+    background-color: #4CAF50; 
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    position: fixed;
     z-index: 3;
 }
 
 
 
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 40px;
+    height: 40px;
+    -webkit-animation: spin 2s linear infinite; 
+    animation: spin 2s linear infinite;
+}
 
-.question-backdrop {
-    width: 70%; /* Relative to the viewport width */
-    background: rgba(255, 255, 255, 0.75); /* Semi-transparent background */
-    backdrop-filter: blur(5px); /* Frosted glass effect */
-    border: 3px solid #FFD700; /* Creatively designed border */
-    border-radius: 10px; /* Rounded corners */
-    padding: 20px;
-    margin-left: 80px;
-    margin-top: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Consistent shadow effect */
-    display: flex;
-    justify-content: center;
-   /* text-align: center !important; */
+/* Safari */
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 
+#revealAnswerBtn {
+    padding: 10px 20px;
+    background-color: #622d05; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: fixed;
+    z-index: 3;
+}
+
+#nextParkBtn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 3;
+}
+
+#revealAnswerBtn {
+    background-color: #4CAF50; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: fixed;
+    right: 160px;
+    bottom: 20px;
+    padding: 10px 20px;
+    z-index: 3;
+}
+
+.question-backdrop {
+    max-width: 90%;
+    width: auto;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(5px);
+    border: 3px solid #FFD700;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+}
+
 .question-text {
-    font-size: 2em; /* Adjust based on your preference */
+    font-size: 2em;
     color: #333;
     font-weight: bold;
+    word-wrap: break-word; 
 }
 
 #participants {
-    position: fixed; /* or 'absolute', depending on layout */
-    bottom: 70px; /* Adjust this value to position above the button */
+    position: fixed; 
+    bottom: 70px;
     width: 80%;
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(10px);
@@ -64,45 +134,71 @@ body {
     flex-direction: column;
     text-align: center;
     left: 50%;
-    transform: translateX(-50%); /* Center horizontally */
+    transform: translateX(-50%); 
     z-index: 2;
 }
 
 #startExploringBtn {
-    background-color: #4CAF50; /* Green color for the button */
-    color: white; /* White text color */
+    background-color: #4CAF50;
+    color: white; 
     padding: 10px 20px;
     border: none;
     margin-top: 200px;;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px; /* Adjust size as needed */
-    transition: background-color 0.3s, transform 0.2s; /* Smooth transition for hover effect */
+    font-size: 16px; 
+    transition: background-color 0.3s, transform 0.2s; 
 }
 
 #startExploringBtn:hover {
-    background-color: #a07a45; /* Darker shade of green for hover */
-    transform: translateY(-2px); /* Slight raise effect */
+    background-color: #a07a45; 
+    transform: translateY(-2px);
 }
 
 
 
+#category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; 
+    align-items: center; 
+    padding: 10px;
+}
+
 #category-buttons button {
-    background-color: #FFD700; /* Golden color for buttons */
-    color: rgb(0, 0, 0); /* White text color */
+    background-color: #FFD700; 
+    color: rgb(0, 0, 0);
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px; /* Adjust size as needed */
-    margin: 5px; /* Space between buttons */
-    transition: background-color 0.3s, transform 0.2s; /* Smooth transition for hover effect */
+    font-size: 16px; 
+    margin: 5px; 
+    transition: background-color 0.3s, transform 0.2s; 
 }
 
 #category-buttons button:hover {
-    background-color: #FFA500; /* Darker shade for hover */
-    transform: translateY(-2px); /* Slight raise effect */
+    background-color: #FFA500; 
+    transform: translateY(-2px); 
 }
+
+
+@media (max-width: 768px) {
+    #category-buttons button {
+        padding: 8px 15px; 
+        font-size: 14px; 
+        margin: 3px; 
+    }
+}
+
+@media (max-width: 480px) {
+    #category-buttons button {
+        padding: 6px 10px; 
+        font-size: 12px; 
+        margin: 2px; 
+    }
+}
+
 
 
 
@@ -133,4 +229,38 @@ body {
 .back-to-home-btn:focus {
     outline: none;
     border: 1px solid #FF9276;
+}
+
+
+#correctAnswerText {
+    color: #000000; 
+    font-size: 1.5em; 
+    margin-top: 10px; 
+    padding: 10px; 
+    background: rgba(255, 255, 255, 0.75); 
+    backdrop-filter: blur(10px); 
+    border-radius: 5px; 
+    display: none; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+}
+
+@media screen and (max-width: 768px) {
+    .question-backdrop {
+        width: 95%;
+        padding: 15px;
+    }
+    .question-text {
+        font-size: 1.5em; 
+    }
+    #participants, #nextParkBtn, #revealAnswerBtn {
+        width: auto; 
+        padding: 8px 15px; 
+    }
+    #nextParkBtn, #revealAnswerBtn {
+        bottom: 15px; 
+        right: 15px;
+    }
+    #revealAnswerBtn {
+        bottom: 60px; 
+    }
 }

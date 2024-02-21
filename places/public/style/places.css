@@ -12,16 +12,16 @@ body {
 
 
 .welcome-banner {
-    background: rgba(255, 204, 153, 0.8); /* Soft sunset peach */
+    background: rgba(255, 204, 153, 0.8); 
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     font-size: 2em;
     margin-bottom: 20px;
-    border: 1px solid rgba(255, 174, 123, 0.6); /* Slightly darker border */
+    border: 1px solid rgba(255, 174, 123, 0.6); 
     text-align: center;
-    color: #501B1D; /* Deep sunset red for text */
+    color: #501B1D; 
 }
 
 
@@ -29,13 +29,13 @@ body {
 /* Container for buttons */
 .button-container {
     display: flex;
-    justify-content: center; /* Center the buttons horizontally */
-    gap: 20px; /* Space between buttons */
+    justify-content: center; 
+    gap: 20px; 
 }
 
 .single-player, .multi-player {
     padding: 10px 20px;
-    margin: 0; /* Remove top/bottom margin */
+    margin: 0; 
     background-color: #FF6B6B;
     border: none;
     border-radius: 20px;

@@ -30,16 +30,16 @@ const app = express();
 const upload = multer();
 
 const corsOptions = {
-  origin: '*', // This allows all domains. For production, replace '*' with your client's domain for security.
-  optionsSuccessStatus: 200 // For legacy browser support
+  origin: '*', 
+  optionsSuccessStatus: 200 
 };
 
 app.use(cors(corsOptions));
 
-// creates HTTP server and attach the Express app to it
+
 const httpServer = createServer(app); 
 const io = new SocketIO(httpServer);
-app.use(express.json()); // This line should be placed before your routes
+app.use(express.json()); 
 
 app.set("view engine", "ejs");
 app.set("views", [
@@ -57,7 +57,6 @@ io.on('connection', (socket) => {
   console.log('A user connected via WebSocket.');
 
   socket.on('playerJoined', (data) => {
-      // when a player joins the game
       console.log(`Player joined: ${data.nickname}`);
       // broadcast join event to all clients (including host)
       io.emit('playerJoined', data);
@@ -66,6 +65,11 @@ io.on('connection', (socket) => {
   socket.on('joinGameRequest', () => {
       console.log('Join game request received');
   });
+
+  socket.on('updateScore', (data) => {
+    console.log(`${data.nickname}'s updated score: ${data.score}`);
+    io.emit('scoreUpdated', data); // broadcast updated score to all clients
+});
 
   socket.on('disconnect', () => {
       console.log('User disconnected');
@@ -195,6 +199,43 @@ app.get("/generate-quiz", logged_in_check, (req, res) => {
 
 
 
+// Endpoint to display all categories
+app.get("/categories", logged_in_check, async (req, res) => {
+  try {
+    const [categories] = await connection
+      .promise()
+      .query("SELECT * FROM Categories");
+    res.render("categories", { categories }); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching the categories.");
+  }
+});
+
+// Endpoint to display questions for a category
+app.get("/category/:category_id/questions", logged_in_check, async (req, res) => {
+  const { category_id } = req.params;
+  try {
+    const [questions] = await connection
+      .promise()
+      .query("SELECT * FROM Questions WHERE category_id = ?", [category_id]);
+    for (const question of questions) {
+      const [options] = await connection
+        .promise()
+        .query("SELECT * FROM Options WHERE question_id = ?", [
+          question.question_id,
+        ]);
+      question.options = options;
+    }
+    res.render("questions", { questions }); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching questions.");
+  }
+});
+
+
+
 
 /// PLACES STARTS HERE ///
 
@@ -217,7 +258,6 @@ app.get('/mainGameMultiplayerClient', (req, res) => {
 // Endpoint to fetch all categories
 app.get('/api/categories', async (req, res) => {
   try {
-      // Fetch categories from the database
       const [categories] = await placesDbConnection.promise().query("SELECT * FROM categories");
       res.json(categories);
   } catch (error) {
@@ -227,15 +267,15 @@ app.get('/api/categories', async (req, res) => {
 });
 
 
-// Adjust the `generateQuestionsForCategory` function to also fetch and send back the image URL.
+// `generateQuestionsForCategory` function fetch and send back the image URL
 app.post('/places/generate_questions', async (req, res) => {
   const { category, num_questions } = req.body;
+  const defaultImageUrl = "/Users/laurieannesolkoski/Desktop/CST/cs_proj_ai/public/images/default.png"; 
 
   try {
       const questions = await generateQuesPlaces(category, num_questions);
       const answer = questions[0].answer;
 
-      // Use the answer to call the Google Places API to find place_id
       const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc';
       const inputType = 'textquery';
       const input = encodeURIComponent(answer);
@@ -247,7 +287,7 @@ app.post('/places/generate_questions', async (req, res) => {
       if (placeJson.candidates.length > 0) {
           const placeId = placeJson.candidates[0].place_id;
 
-          // Fetch the image URL using the place_id
+          // grab the image URL using the place_id
           const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&fields=photo&key=${apiKey}`;
           const detailsResponse = await fetch(detailsUrl);
           const detailsJson = await detailsResponse.json();
@@ -257,18 +297,20 @@ app.post('/places/generate_questions', async (req, res) => {
               const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
 
               const options = questions[0].choices;
-              // Send back the question, answer, place_id, and photo URL
-              console.log({ questions, photoUrl }); // See what you're about to send
+              console.log({ questions, photoUrl }); 
              // console.log(questions[0].choices);
               console.log(options);
 
-          
-              io.emit('question-options', { options: options, question: questions[0].question });
-
+              io.emit('question-options', {
+                options: questions[0].choices,
+                question: questions[0].question,
+                correctAnswer: questions[0].answer 
+              });
               res.json({ questions, photoUrl });
               
           } else {
-              throw new Error('No photos found for this place');
+            console.log("No pic found from API for this question");
+            return defaultImageUrl;
           }
       } else {
           throw new Error('No candidates found for the given location.');
@@ -287,41 +329,7 @@ app.post('/places/generate_questions', async (req, res) => {
 
 
 
-// Endpoint to display all categories
-app.get("/categories", logged_in_check, async (req, res) => {
-  try {
-    const [categories] = await connection
-      .promise()
-      .query("SELECT * FROM Categories");
-    res.render("categories", { categories }); // Pass the categories to the EJS template
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("An error occurred while fetching the categories.");
-  }
-});
 
-// Endpoint to display questions for a category
-app.get("/category/:category_id/questions", logged_in_check, async (req, res) => {
-  const { category_id } = req.params;
-  try {
-    const [questions] = await connection
-      .promise()
-      .query("SELECT * FROM Questions WHERE category_id = ?", [category_id]);
-    // Include options for each question
-    for (const question of questions) {
-      const [options] = await connection
-        .promise()
-        .query("SELECT * FROM Options WHERE question_id = ?", [
-          question.question_id,
-        ]);
-      question.options = options;
-    }
-    res.render("questions", { questions }); // Ensure you have a 'questionsPage.ejs' file in your views directory
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("An error occurred while fetching questions.");
-  }
-});
 
 const port = 8000;
 httpServer.listen(port, () => {

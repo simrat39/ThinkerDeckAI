@@ -1,78 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Places-Multiplayer</title>
-    <link rel="stylesheet" href="/places/style/multiplayer-client.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Places-Multiplayer</title>
+  <link rel="stylesheet" href="/places/style/multiplayer-client.css">
 </head>
+
 <body>
 
 
-    <div id="nickname-section">
-        <input type="text" id="nickname" placeholder="Enter your nickname">
-        <button id="join-game">Join Game</button>
-    </div>
+  <div id="nickname-section">
+    <input type="text" id="nickname" placeholder="Enter your nickname">
+    <button id="join-game">Join Game</button>
+  </div>
 
-    <div id="question-options" style="display:none;">
-        <!-- Options will be dynamically loaded here -->
-    </div>
+  <div id="question-options" style="display:none;">
+    <!-- Options dynamically loaded here -->
+  </div>
 
-    <script src="http://192.168.0.16:8000/socket.io/socket.io.js">
-        // bcit: 10.65.65.13
-        // home: 192.168.0.16
-        // cell data: 172.20.10.4
-        // find ip address: ipconfig
-    </script>
-   <script>
+  <script src="http://192.168.0.16:8000/socket.io/socket.io.js">
+    // bcit: 10.65.65.13
+    // home: 192.168.0.16
+    // cell data: 172.20.10.4
+    // find ip address: ipconfig
+  </script>
+  <script>
     const socket = io();
+    let playerScore = 0;
 
-    document.getElementById('join-game').addEventListener('click', function() {
-        const nickname = document.getElementById('nickname').value;
-        socket.emit('playerJoined', { nickname: nickname });
-        // Hide nickname section and show question options
-        document.getElementById('nickname-section').style.display = 'none';
-        document.getElementById('question-options').style.display = 'block';
+    document.getElementById('join-game').addEventListener('click', function () {
+      const nickname = document.getElementById('nickname').value;
+      socket.emit('playerJoined', {
+        nickname: nickname
+      });
+      document.getElementById('nickname-section').style.display = 'none';
+      document.getElementById('question-options').style.display = 'block';
     });
 
-   // Listen for question options update
-   socket.on('question-options', (data) => {
-    console.log(data);
-  // Access the container where the question options (choices) will be displayed
-  const optionsContainer = document.getElementById('question-options');
-  optionsContainer.innerHTML = ''; // Clear any existing options
+    // Listen for question options update
+    socket.on('question-options', (data) => {
+      const optionsContainer = document.getElementById('question-options');
+      optionsContainer.innerHTML = '';
 
-  // Access the question object from the received data
-  data.options.forEach((option) => {
-    // Create a new button element for each choice
-    const button = document.createElement('button');
-    button.innerText = option; // Set the text of the button to the current option
-    button.onclick = function() {
-      // Define what happens when the button is clicked
-      // This is where you might handle the player's answer selection
-      console.log(`Option selected: ${option}`);
-      // You can emit an event back to the server with the selected option if needed
-      // socket.emit('answer-selected', { option: option });
-    };
-    // Append the newly created button to the options container
-    optionsContainer.appendChild(button);
-  });
+      data.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.innerText = option;
+        button.onclick = function () {
+          // disable all buttons after a choice has been made
+          document.querySelectorAll('#question-options button').forEach(btn => {
+            btn.disabled = true;
+          });
 
-  // Display the question text
-  // Assuming there's an element with id 'question-text' to show the question
-  const questionTextElement = document.getElementById('question-text');
-  if(questionTextElement) { // Check if the element exists
-    questionTextElement.innerText = question.question; // Set the question text
-  }
+          if (button.innerText === data.correctAnswer) {
+            console.log("Correct answer selected!");
+            button.style.backgroundColor = 'green';
 
-  // Make sure the options container is visible to display the options
-  optionsContainer.style.display = 'block';
-});
+            playerScore += 1;
+            // Emit an event to the server with the updated score and player nickname
+            socket.emit('updateScore', {
+              nickname: document.getElementById('nickname').value,
+              score: playerScore
+            });
+          } else {
+            console.log("Incorrect answer, try again!");
+            button.style.backgroundColor = 'red';
+          }
+        };
+        optionsContainer.appendChild(button);
+      });
+
+      document.getElementById('question-text').innerText = data.question;
+
+      optionsContainer.style.display = 'block';
+    });
+  </script>
 
 
-
-
-</script>
+  </script>
 
 
 
@@ -80,5 +86,5 @@
 
 
 </body>
-</html>
 
+</html>

@@ -14,8 +14,9 @@ export default async function generateQuesPlaces(category, num_questions) {
   const messages = [
     {
       role: "system",
-      content: `You are a trivia question creator. Your job is to generate one trivia question at a time based on the selected category. Give the answers as well and make it return JSON.
-      Do not generate another one until the user has clicked the next button`,
+      content: `You are a trivia question creator. Your job is to generate 10 trivia questions at a time based on the selected category, BUT
+      the questions must be based on places, like locations ONLY. The answers to these questions have to exist so that Google can
+      find an image of them. Give the answers as well and make it return JSON.`,
     },
     {
       role: "user",
