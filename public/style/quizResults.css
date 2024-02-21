@@ -1,0 +1,56 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background: url('/images/lemon_gif.gif') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.container h2 {
+  color: rgb(116, 82, 9);
+}
+
+.home-btn {
+  padding: 10px 20px;
+  margin: 10px 0;
+  background-color: #847109;
+  border: none;
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.home-btn:hover {
+  background-color: #cbae38;
+  transform: translateY(-2px);
+}
+
+.home-btn:focus {
+  outline: none;
+  border: 1px solid #504105;
+}
+
+@media (max-width: 600px) {
+  .container {
+      width: 80%;
+      padding: 20px;
+  }
+}

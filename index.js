@@ -169,6 +169,14 @@ app.get("/quizzes/:quiz_id", logged_in_check, async (req, res) => {
   res.render("questions", { questions });
 });
 
+
+/**
+ * Route to display quiz results.
+ */
+app.get("/quiz-results", logged_in_check, async(req, res) => {
+  res.render("quizResults", {req:req});
+});
+
 /**
  * Start the server.
  */

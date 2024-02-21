@@ -38,7 +38,7 @@ function enable_options() {
 }
 
 function set_score() {
-  document.getElementById("score").innerText = `${score} / ${last_ques + 1}`;
+  document.getElementById("score").innerText = `Score: ${score} / ${last_ques + 1}`;
 }
 
 function set_question(idx) {
@@ -77,6 +77,11 @@ function set_question(idx) {
 
         disable_options();
         set_score();
+
+        // Check if it's the last question and redirect to results page
+      if (idx === last_ques) {
+        window.location.href = `/quiz-results?score=${score}&total=${last_ques + 1}`;      
+      }
       },
       { signal: signal }
     );
