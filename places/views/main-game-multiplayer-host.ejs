@@ -26,6 +26,11 @@
       <!-- Category buttons dynamically added here -->
     </div>
 
+    <div id="scores">
+      <h3>Scores</h3>
+      <!-- Scores will be dynamically added here -->
+    </div>
+
     <div id="nationalParks" style="display: none">
       <!-- <img id="parkImage" src="" alt="National Park" style="max-width: 100%; height: auto;"> -->
       <button id="nextParkBtn">Next Question!</button>
@@ -84,7 +89,18 @@
 
       // User scores
       socket.on("scoreUpdated", (data) => {
-        console.log(`Score update for ${data.nickname}: ${data.score}`);
+    let scoreDisplay = document.getElementById(`score-${data.nickname}`);
+
+    if (!scoreDisplay) {
+      scoreDisplay = document.createElement("div");
+      scoreDisplay.id = `score-${data.nickname}`;
+      scoreDisplay.className = "score-item"; 
+      document.getElementById("scores").appendChild(scoreDisplay);
+    }
+
+    scoreDisplay.innerText = `${data.nickname}: ${data.score}`;
+  
+
         const scoreElementId = `${data.nickname}-score`;
         const scoreElement = document.getElementById(scoreElementId);
 
@@ -133,6 +149,8 @@
                         </div>
                     </div>
                 `;
+
+                document.getElementById("scores").style.display = "block";
 
             document.getElementById("revealAnswerBtn").style.display =
               "inline-block";

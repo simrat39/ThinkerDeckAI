@@ -10,20 +10,23 @@ body {
     margin: 0;
 }
 
-#scoreboard {
-    width: 20%; 
-    height: auto; 
-    padding: 20px;
-    margin: 20px;
-    background: rgba(255, 255, 255, 0.85); 
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: fixed; 
-    right: 20px;
+#scores {
+    position: absolute;
     top: 20px; 
-    overflow-y: auto;
-    z-index: 3; 
+    right: 20px; 
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none; 
+    z-index: 10; 
 }
+
+.score-item {
+    margin: 5px 0;
+}
+
 
 #nextParkBtn  {
     padding: 10px 20px;
