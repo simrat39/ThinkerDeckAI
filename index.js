@@ -12,10 +12,10 @@ import cors from 'cors';
 import authRouter from "./routes/auth.js"
 import DatabaseConnection from "./utilities/database_connection.js"
 import logged_in_check from "./utilities/logged_in_check_middleware.js";
-import generateImages from "./utilities/dalleClient.js";
+// import generateImages from "./utilities/dalleClient.js";
 import generateImages from "./utilities/dalle_service.js";
-import generateQues from "./utilities/gptClient.js";
-import generateQues from "./utilities/gpt_service.js";
+import generateQues from "./utilities/gptClient_places.js";
+// import generateQues from "./utilities/gpt_service.js";
 import generateQuesPlaces from "./utilities/gptClient_places.js";
 import MongoService from "./utilities/mongo_service.js";
 
