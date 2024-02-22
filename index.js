@@ -1,16 +1,15 @@
-
 import dotenv from "dotenv";
 dotenv.config();
 
 import { createServer } from "http";
-import { Server as SocketIO } from 'socket.io';
-import nodeFetch from 'node-fetch';
+import { Server as SocketIO } from "socket.io";
+import nodeFetch from "node-fetch";
 import express from "express";
 import multer from "multer";
 import path from "path";
-import cors from 'cors';
-import authRouter from "./routes/auth.js"
-import DatabaseConnection from "./utilities/database_connection.js"
+import cors from "cors";
+import authRouter from "./routes/auth.js";
+import DatabaseConnection from "./utilities/database_connection.js";
 import logged_in_check from "./utilities/logged_in_check_middleware.js";
 // import generateImages from "./utilities/dalleClient.js";
 import generateImages from "./utilities/dalle_service.js";
@@ -19,33 +18,28 @@ import generateQues from "./utilities/gptClient_places.js";
 import generateQuesPlaces from "./utilities/gptClient_places.js";
 import MongoService from "./utilities/mongo_service.js";
 
-
-
 // const connection = new DatabaseConnection()
 
 // For operations related to the generative_ai database
-const generativeAiDbConnection = DatabaseConnection.getConnection("generative_ai");
+// const generativeAiDbConnection = DatabaseConnection.getConnection("generative_ai");
 
 // For operations related to the places database
-const placesDbConnection = DatabaseConnection.getConnection("places");
-
-
+// const placesDbConnection = DatabaseConnection.getConnection("places");
 
 const mongo = new MongoService();
 const app = express();
 const upload = multer();
 
 const corsOptions = {
-  origin: '*', 
-  optionsSuccessStatus: 200 
+  origin: "*",
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
 
-
-const httpServer = createServer(app); 
+const httpServer = createServer(app);
 const io = new SocketIO(httpServer);
-app.use(express.json()); 
+app.use(express.json());
 
 app.set("view engine", "ejs");
 app.set("views", path.join(path.resolve(), "views"));
@@ -53,39 +47,39 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
 app.set("views", [
   path.join(path.resolve(), "views"),
-  path.join(path.resolve(), "places", "views")
+  path.join(path.resolve(), "places", "views"),
 ]);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(path.resolve(), "public")));
-app.use("/places", express.static(path.join(path.resolve(), "places", "public")));
-
+app.use(
+  "/places",
+  express.static(path.join(path.resolve(), "places", "public"))
+);
 
 // WebSocket connections handling //
-io.on('connection', (socket) => {
-  console.log('A user connected via WebSocket.');
+io.on("connection", (socket) => {
+  console.log("A user connected via WebSocket.");
 
-  socket.on('playerJoined', (data) => {
-      console.log(`Player joined: ${data.nickname}`);
-      // broadcast join event to all clients (including host)
-      io.emit('playerJoined', data);
+  socket.on("playerJoined", (data) => {
+    console.log(`Player joined: ${data.nickname}`);
+    // broadcast join event to all clients (including host)
+    io.emit("playerJoined", data);
   });
 
-  socket.on('joinGameRequest', () => {
-      console.log('Join game request received');
+  socket.on("joinGameRequest", () => {
+    console.log("Join game request received");
   });
 
-  socket.on('updateScore', (data) => {
+  socket.on("updateScore", (data) => {
     console.log(`${data.nickname}'s updated score: ${data.score}`);
-    io.emit('scoreUpdated', data); // broadcast updated score to all clients
-});
+    io.emit("scoreUpdated", data); // broadcast updated score to all clients
+  });
 
-  socket.on('disconnect', () => {
-      console.log('User disconnected');
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
   });
 });
-
-
 
 app.use("/", authRouter);
 
@@ -144,7 +138,6 @@ app.post(
   }
 );
 
-
 /**
  * Route to display a set of dummy questions.
  */
@@ -201,7 +194,6 @@ app.get("/questions", logged_in_check, (req, res) => {
   res.render("questionStack", { questions: dummyQuestions });
 });
 
-
 /**
  * Route for the landing page.
  */
@@ -230,30 +222,23 @@ app.get("/quizzes", logged_in_check, async (req, res) => {
   }
 });
 
-
 /**
  * Route to display questions for a specific quiz.
  */
 app.get("/quizzes/:quiz_id", logged_in_check, async (req, res) => {
   const { quiz_id } = req.params;
   const quiz = await mongo.get_quiz(quiz_id);
-  const questions = quiz.questions
+  const questions = quiz.questions;
 
   res.render("questions", { questions });
 });
 
-
 /**
  * Route to display quiz results.
  */
-app.get("/quiz-results", logged_in_check, async(req, res) => {
-  res.render("quizResults", {req:req});
+app.get("/quiz-results", logged_in_check, async (req, res) => {
+  res.render("quizResults", { req: req });
 });
-
-
-
-
-
 
 /// PLACES STARTS HERE ///
 
@@ -262,93 +247,91 @@ app.get("/places", (req, res) => {
 });
 
 // server HOST for places
-app.get('/mainGameMultiplayerHost', (req, res) => {
-  res.render('main-game-multiplayer-host');
+app.get("/mainGameMultiplayerHost", (req, res) => {
+  res.render("main-game-multiplayer-host");
 });
-
 
 // CLIENT //
-app.get('/mainGameMultiplayerClient', (req, res) => {
-  res.render('multiplayer-client');
+app.get("/mainGameMultiplayerClient", (req, res) => {
+  res.render("multiplayer-client");
 });
-
 
 // Endpoint to fetch all categories
-app.get('/api/categories', async (req, res) => {
-  try {
-      const [categories] = await placesDbConnection.promise().query("SELECT * FROM categories");
-      res.json(categories);
-  } catch (error) {
-      console.error('Error fetching categories:', error);
-      res.status(500).send('Error fetching categories.');
-  }
+app.get("/api/categories", async (req, res) => {
+  // try {
+  // const [categories] = await placesDbConnection.promise().query("SELECT * FROM categories");
+  res.json([
+    { name: "North American National Parks" },
+    { name: "Canada" },
+    { name: "Vancouver, BC" },
+    { name: "Famous Landmarks" },
+  ]);
+  // } catch (error) {
+  // console.error('Error fetching categories:', error);
+  // res.status(500).send('Error fetching categories.');
+  // }
 });
-
 
 // `generateQuestionsForCategory` function fetch and send back the image URL
-app.post('/places/generate_questions', async (req, res) => {
+app.post("/places/generate_questions", async (req, res) => {
   const { category, num_questions } = req.body;
-  const defaultImageUrl = "/Users/laurieannesolkoski/Desktop/CST/cs_proj_ai/public/images/default.png"; 
+  const defaultImageUrl =
+    "/Users/laurieannesolkoski/Desktop/CST/cs_proj_ai/public/images/default.png";
 
   try {
-      const questions = await generateQuesPlaces(category, num_questions);
-      const answer = questions[0].answer;
+    const questions = await generateQuesPlaces(category, num_questions);
+    const answer = questions[0].answer;
 
-      const apiKey = 'AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc';
-      const inputType = 'textquery';
-      const input = encodeURIComponent(answer);
-      const findPlaceUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=${inputType}&input=${input}&key=${apiKey}`;
+    const apiKey = "AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc";
+    const inputType = "textquery";
+    const input = encodeURIComponent(answer);
+    const findPlaceUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=${inputType}&input=${input}&key=${apiKey}`;
 
-      const placeResponse = await fetch(findPlaceUrl);
-      const placeJson = await placeResponse.json();
+    const placeResponse = await fetch(findPlaceUrl);
+    const placeJson = await placeResponse.json();
 
-      if (placeJson.candidates.length > 0) {
-          const placeId = placeJson.candidates[0].place_id;
+    if (placeJson.candidates.length > 0) {
+      const placeId = placeJson.candidates[0].place_id;
 
-          // grab the image URL using the place_id
-          const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&fields=photo&key=${apiKey}`;
-          const detailsResponse = await fetch(detailsUrl);
-          const detailsJson = await detailsResponse.json();
+      // grab the image URL using the place_id
+      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&fields=photo&key=${apiKey}`;
+      const detailsResponse = await fetch(detailsUrl);
+      const detailsJson = await detailsResponse.json();
 
-          if (detailsJson.result.photos && detailsJson.result.photos.length > 0) {
-              const photoReference = detailsJson.result.photos[0].photo_reference;
-              const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
+      if (detailsJson.result.photos && detailsJson.result.photos.length > 0) {
+        const photoReference = detailsJson.result.photos[0].photo_reference;
+        const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
 
-              const options = questions[0].choices;
-              console.log({ questions, photoUrl }); 
-             // console.log(questions[0].choices);
-              console.log(options);
+        const options = questions[0].choices;
+        console.log({ questions, photoUrl });
+        // console.log(questions[0].choices);
+        console.log(options);
 
-              io.emit('question-options', {
-                options: questions[0].choices,
-                question: questions[0].question,
-                correctAnswer: questions[0].answer 
-              });
-              res.json({ questions, photoUrl });
-              
-          } else {
-            console.log("No pic found from API for this question");
-            return defaultImageUrl;
-          }
+        io.emit("question-options", {
+          options: questions[0].choices,
+          question: questions[0].question,
+          correctAnswer: questions[0].answer,
+        });
+        res.json({ questions, photoUrl });
       } else {
-          throw new Error('No candidates found for the given location.');
+        console.log("No pic found from API for this question");
+        return defaultImageUrl;
       }
+    } else {
+      throw new Error("No candidates found for the given location.");
+    }
   } catch (error) {
-      console.error('Failed to generate questions or fetch place ID/image:', error);
-      res.status(500).send('Failed to generate questions or fetch place ID/image.');
+    console.error(
+      "Failed to generate questions or fetch place ID/image:",
+      error
+    );
+    res
+      .status(500)
+      .send("Failed to generate questions or fetch place ID/image.");
   }
 });
 
-
-
-
-
 /// PLACES ENDS HERE ///
-
-
-
-
-
 
 const port = 8000;
 httpServer.listen(port, () => {

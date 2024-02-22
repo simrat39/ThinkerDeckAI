@@ -1,130 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trivia Game Host</title>
-    <link rel="stylesheet" href="/places/style/main-game-multiplayer-host.css">
-</head>
+    <link
+      rel="stylesheet"
+      href="/places/style/main-game-multiplayer-host.css"
+    />
+  </head>
 
-<body>
+  <body>
     <div id="question-container">
-        <!-- Question here -->
+      <!-- Question here -->
     </div>
     <div id="participants">
-        <h3>Joined Participants</h3>
+      <h3>Joined Participants</h3>
     </div>
 
     <div id="start-game-button">
-        <button id="startExploringBtn">Start Exploring</button>
+      <button id="startExploringBtn">Start Exploring</button>
     </div>
 
-    <div id="category-buttons" style="display:none;">
-        <!-- Category buttons dynamically added here -->
+    <div id="category-buttons" style="display: none">
+      <!-- Category buttons dynamically added here -->
     </div>
 
-    <div id="nationalParks" style="display:none;">
-        <!-- <img id="parkImage" src="" alt="National Park" style="max-width: 100%; height: auto;"> -->
-        <button id="nextParkBtn">Next Question!</button>
+    <div id="nationalParks" style="display: none">
+      <!-- <img id="parkImage" src="" alt="National Park" style="max-width: 100%; height: auto;"> -->
+      <button id="nextParkBtn">Next Question!</button>
 
-        <button id="revealAnswerBtn" style="display:none;">Reveal Answer</button>
-        <p id="correctAnswerText" style="display:none;">Correct Answer: </p>
+      <button id="revealAnswerBtn" style="display: none">Reveal Answer</button>
+      <p id="correctAnswerText" style="display: none">Correct Answer:</p>
     </div>
 
     <script src="http://localhost:8000/socket.io/socket.io.js"></script>
+    <!-- <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4" crossorigin="anonymous"></script> -->
     <script>
-        const socket = io();
-        let currentCategory = null; //to store the current category
-        let currentAnswer = '';
+      const socket = io();
+      let currentCategory = null; //to store the current category
+      let currentAnswer = "";
 
-        // Listen for player join updates
-        socket.on('playerJoined', (playerData) => {
-            const participantsDiv = document.getElementById('participants');
-            participantsDiv.innerHTML += `<p>${playerData.nickname}</p>`;
+      // Listen for player join updates
+      socket.on("playerJoined", (playerData) => {
+        const participantsDiv = document.getElementById("participants");
+        participantsDiv.innerHTML += `<p>${playerData.nickname}</p>`;
+      });
+
+      // Fetch categories and dynamically create buttons
+      function fetchCategoriesAndCreateButtons() {
+        fetch("/api/categories")
+          .then((response) => response.json())
+          .then((categories) => {
+            const categoryButtonsDiv =
+              document.getElementById("category-buttons");
+            categoryButtonsDiv.innerHTML = "";
+            categories.forEach((category) => {
+              const button = document.createElement("button");
+              button.textContent = category.name;
+              button.addEventListener("click", function () {
+                currentCategory = category.name; // Store current category
+                document.getElementById("category-buttons").style.display =
+                  "none";
+                document.getElementById("nationalParks").style.display =
+                  "block";
+                generateQuestionsForCategory(currentCategory); // fetch the first question for the category
+              });
+              categoryButtonsDiv.appendChild(button);
+            });
+          })
+          .catch((error) => console.error("Error fetching categories:", error));
+      }
+
+      // start exploring button click
+      document
+        .getElementById("startExploringBtn")
+        .addEventListener("click", function () {
+          document.getElementById("participants").style.display = "none";
+          document.getElementById("start-game-button").style.display = "none";
+          fetchCategoriesAndCreateButtons();
+          document.getElementById("category-buttons").style.display = "block";
         });
 
-        
-
-        // Fetch categories and dynamically create buttons
-        function fetchCategoriesAndCreateButtons() {
-            fetch('/api/categories')
-                .then(response => response.json())
-                .then(categories => {
-                    const categoryButtonsDiv = document.getElementById('category-buttons');
-                    categoryButtonsDiv.innerHTML = ''; 
-                    categories.forEach(category => {
-                        const button = document.createElement('button');
-                        button.textContent = category.name;
-                        button.addEventListener('click', function () {
-                            currentCategory = category.name; // Store current category
-                            document.getElementById('category-buttons').style.display = 'none';
-                            document.getElementById('nationalParks').style.display =
-                                'block'; 
-                            generateQuestionsForCategory(
-                                currentCategory); // fetch the first question for the category
-                        });
-                        categoryButtonsDiv.appendChild(button);
-                    });
-                })
-                .catch(error => console.error('Error fetching categories:', error));
-        }
-
-
-
-        // start exploring button click
-        document.getElementById('startExploringBtn').addEventListener('click', function () {
-            document.getElementById('participants').style.display = 'none';
-            document.getElementById('start-game-button').style.display = 'none';
-            fetchCategoriesAndCreateButtons(); 
-            document.getElementById('category-buttons').style.display = 'block';
-        });
-
-
-        // User scores
-        socket.on('scoreUpdated', (data) => {
+      // User scores
+      socket.on("scoreUpdated", (data) => {
         console.log(`Score update for ${data.nickname}: ${data.score}`);
         const scoreElementId = `${data.nickname}-score`;
         const scoreElement = document.getElementById(scoreElementId);
 
-        if(scoreElement) {
-            scoreElement.innerText = `Score: ${data.score}`;
+        if (scoreElement) {
+          scoreElement.innerText = `Score: ${data.score}`;
         } else {
-            console.error(`Score element for ${data.nickname} not found.`);
+          console.error(`Score element for ${data.nickname} not found.`);
         }
-    });
+      });
 
+      function fetchNextPark() {
+        fetch("/getNationalParkImage")
+          .then((response) => response.json())
+          .then((data) => {
+            const imageUrl = data.imageUrl;
+            document.getElementById("parkImage").src = imageUrl;
+          })
+          .catch((error) => console.error("Error fetching park image:", error));
+      }
 
-        function fetchNextPark() {
-            fetch('/getNationalParkImage')
-                .then(response => response.json())
-                .then(data => {
-                    const imageUrl = data.imageUrl;
-                    document.getElementById('parkImage').src = imageUrl;
-                })
-                .catch(error => console.error('Error fetching park image:', error));
-        }
+      function generateQuestionsForCategory(category) {
+        fetch("/places/generate_questions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            category: category,
+            num_questions: 1,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const questionContainer =
+              document.getElementById("question-container");
+            const question = data.questions[0];
+            const imageUrl = data.photoUrl;
+            currentAnswer = question.answer; // store the current correct answer
 
-        function generateQuestionsForCategory(category) {
-            fetch('/places/generate_questions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    category: category,
-                    num_questions: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const questionContainer = document.getElementById('question-container');
-                const question = data.questions[0];
-                const imageUrl = data.photoUrl;
-                currentAnswer = question.answer; // store the current correct answer
-
-                // Update the question container with the question and image
-                questionContainer.innerHTML = `
+            // Update the question container with the question and image
+            questionContainer.innerHTML = `
                     <div style="text-align: center; width: 100%;">
                         <img src="${imageUrl}" alt="Place Image">
                         <div class="question-backdrop">
@@ -133,39 +134,45 @@
                     </div>
                 `;
 
-                document.getElementById('revealAnswerBtn').style.display = 'inline-block';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
+            document.getElementById("revealAnswerBtn").style.display =
+              "inline-block";
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
 
-        //  Reveal Answer button
-        document.getElementById('revealAnswerBtn').addEventListener('click', function() {
-    const correctAnswerText = document.getElementById('correctAnswerText');
-    if (correctAnswerText.style.display === 'none' || correctAnswerText.style.display === '') {
-        correctAnswerText.style.display = 'block';
-        correctAnswerText.textContent = `Correct Answer: ${currentAnswer}`;
-        this.textContent = 'Hide Answer';
-    } else {
-        correctAnswerText.style.display = 'none';
-        this.textContent = 'Reveal Answer';
-    }
-});
+      //  Reveal Answer button
+      document
+        .getElementById("revealAnswerBtn")
+        .addEventListener("click", function () {
+          const correctAnswerText =
+            document.getElementById("correctAnswerText");
+          if (
+            correctAnswerText.style.display === "none" ||
+            correctAnswerText.style.display === ""
+          ) {
+            correctAnswerText.style.display = "block";
+            correctAnswerText.textContent = `Correct Answer: ${currentAnswer}`;
+            this.textContent = "Hide Answer";
+          } else {
+            correctAnswerText.style.display = "none";
+            this.textContent = "Reveal Answer";
+          }
+        });
 
-
-
-        // "Next" button to fetch a new question for the current category
-        document.getElementById('nextParkBtn').addEventListener('click', function () {
-            if (currentCategory) { 
-                generateQuestionsForCategory(currentCategory); // grab a new question
-            }
+      // "Next" button to fetch a new question for the current category
+      document
+        .getElementById("nextParkBtn")
+        .addEventListener("click", function () {
+          if (currentCategory) {
+            generateQuestionsForCategory(currentCategory); // grab a new question
+          }
         });
     </script>
 
     <div class="back-to-home">
-        <a href="/places" class="back-to-home-btn">Go Back</a>
+      <a href="/places" class="back-to-home-btn">Go Back</a>
     </div>
-</body>
-
+  </body>
 </html>

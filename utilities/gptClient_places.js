@@ -2,8 +2,9 @@ import OpenAI from "openai";
 import dotenv from "dotenv";
 dotenv.config();
 
-const gptClient = new OpenAI({ apiKey: "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" });
-
+const gptClient = new OpenAI({
+  apiKey: "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",
+});
 
 export default async function generateQuesPlaces(category, num_questions) {
   if (!category) {
@@ -48,19 +49,22 @@ export default async function generateQuesPlaces(category, num_questions) {
       role: "system",
       content: `Here is the topic:\n${category}`,
     },
-];
-    // Call GPT-4 to generate questions
-    const completion = await gptClient.chat.completions.create({
-        model: "gpt-4",
-        messages: messages,
-    });
-   // Log the GPT-4 completion content
-   console.log("GPT-4 Completion Content:", completion.choices[0].message.content);
+  ];
+  // Call GPT-4 to generate questions
+  const completion = await gptClient.chat.completions.create({
+    model: "gpt-4",
+    messages: messages,
+  });
+  // Log the GPT-4 completion content
+  console.log(
+    "GPT-4 Completion Content:",
+    completion.choices[0].message.content
+  );
 
-   // Parse the returned questions
-   const generatedQuestions = JSON.parse(
-       completion.choices[0].message.content
-   ).quiz;
+  // Parse the returned questions
+  const generatedQuestions = JSON.parse(
+    completion.choices[0].message.content
+  ).quiz;
 
-   return generatedQuestions;
+  return generatedQuestions;
 }

@@ -55,11 +55,11 @@ input:focus {
 
 @media screen and (max-width: 768px) {
     #nickname-section, #question-options {
-        width: auto;
+        width: min-content;
         padding: 8px 15px;
     }
     #question-options {
-        width: auto;
+        width: min-content;
     }
 
 }
