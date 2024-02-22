@@ -98,6 +98,21 @@ body {
     bottom: 20px;
     padding: 10px 20px;
     z-index: 3;
+    margin-right: 10px!important;
+}
+
+
+#endGameBtn {
+    background-color: #4CAF50; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: fixed;
+    right: 160px;
+    bottom: 20px;
+    padding: 10px 20px;
+    z-index: 3;
 }
 
 .question-backdrop {

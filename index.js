@@ -71,10 +71,28 @@ io.on("connection", (socket) => {
     console.log("Join game request received");
   });
 
-  socket.on("updateScore", (data) => {
-    console.log(`${data.nickname}'s updated score: ${data.score}`);
-    io.emit("scoreUpdated", data); // broadcast updated score to all clients
-  });
+  // Object to keep track of all player scores
+let playerScores = {};
+
+// Listen for 'updateScore' events from clients
+socket.on('updateScore', (data) => {
+  const { nickname, score } = data;
+
+  // Update the player's score in the server-side storage
+  playerScores[nickname] = score;
+
+  // Emit updated scores to all clients, including the host
+  // Consider if you want to emit to all or just update the host; this broadcasts to all
+  io.emit('scoreUpdated', { nickname: nickname, score: score });
+});
+
+
+socket.on('endGame', () => {
+  console.log("Game has ended");
+  // Send the final scores to all clients
+  io.emit('gameEnded', playerScores);
+});
+
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
@@ -274,12 +292,12 @@ app.get("/api/categories", async (req, res) => {
 
 // `generateQuestionsForCategory` function fetch and send back the image URL
 app.post("/places/generate_questions", async (req, res) => {
-  const { category, num_questions } = req.body;
+  const { category, num_ques} = req.body;
   const defaultImageUrl =
     "/Users/laurieannesolkoski/Desktop/CST/cs_proj_ai/public/images/default.png";
 
   try {
-    const questions = await generateQuesPlaces(category, num_questions);
+    const questions = await generateQuesPlaces(category, num_ques);
     const answer = questions[0].answer;
 
     const apiKey = "AIzaSyC_A69xm_kHQZZqPS_qrVqXcf26OUFryWc";

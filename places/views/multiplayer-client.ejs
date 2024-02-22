@@ -20,7 +20,7 @@
     <!-- Options dynamically loaded here -->
   </div>
 
-  <script src="http://10.65.65.143:8000/socket.io/socket.io.js">
+  <script src="http://172.20.10.4:8000/socket.io/socket.io.js">
     // bcit: 10.65.65.13
     // home: 192.168.0.16
     // cell data: 172.20.10.4
@@ -40,6 +40,22 @@
       document.getElementById('nickname-section').style.display = 'none';
       document.getElementById('question-options').style.display = 'block';
     });
+
+    
+
+    socket.on('gameEnded', (finalScores) => {
+      document.getElementById("question-options").style.display = "none";
+      const finalScoresDiv = document.getElementById("final-scores");
+      finalScoresDiv.style.display = "block";
+      finalScoresDiv.innerHTML += "<h2>Final Scores:</h2>";
+
+      Object.keys(finalScores).forEach(nickname => {
+        finalScoresDiv.innerHTML += `<p>${nickname}: ${finalScores[nickname]}</p>`;
+      });
+    });
+
+
+
 
     // Listen for question options update
     socket.on('question-options', (data) => {

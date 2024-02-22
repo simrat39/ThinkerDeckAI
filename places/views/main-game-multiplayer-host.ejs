@@ -37,6 +37,7 @@
 
       <button id="revealAnswerBtn" style="display: none">Reveal Answer</button>
       <p id="correctAnswerText" style="display: none">Correct Answer:</p>
+      <button id="endGameBtn" style="display: none">End Game</button>
     </div>
 
     <script src="http://localhost:8000/socket.io/socket.io.js"></script>
@@ -54,28 +55,26 @@
 
       // Fetch categories and dynamically create buttons
       function fetchCategoriesAndCreateButtons() {
-        fetch("/api/categories")
-          .then((response) => response.json())
-          .then((categories) => {
-            const categoryButtonsDiv =
-              document.getElementById("category-buttons");
-            categoryButtonsDiv.innerHTML = "";
-            categories.forEach((category) => {
-              const button = document.createElement("button");
-              button.textContent = category.name;
-              button.addEventListener("click", function () {
-                currentCategory = category.name; // Store current category
-                document.getElementById("category-buttons").style.display =
-                  "none";
-                document.getElementById("nationalParks").style.display =
-                  "block";
-                generateQuestionsForCategory(currentCategory); // fetch the first question for the category
-              });
-              categoryButtonsDiv.appendChild(button);
-            });
-          })
-          .catch((error) => console.error("Error fetching categories:", error));
-      }
+  fetch("/api/categories")
+    .then((response) => response.json())
+    .then((categories) => {
+      const categoryButtonsDiv = document.getElementById("category-buttons");
+      categoryButtonsDiv.innerHTML = "";
+      categories.forEach((category) => {
+        const button = document.createElement("button");
+        button.textContent = category.name;
+        button.addEventListener("click", function () {
+          currentCategory = category.name; // Store current category
+          document.getElementById("category-buttons").style.display = "none";
+          document.getElementById("nationalParks").style.display = "block";
+          document.getElementById("endGameBtn").style.display = "block"; // Make the end game button visible
+          generateQuestionsForCategory(currentCategory); // fetch the first question for the category
+        });
+        categoryButtonsDiv.appendChild(button);
+      });
+    })
+    .catch((error) => console.error("Error fetching categories:", error));
+}
 
       // start exploring button click
       document
@@ -87,29 +86,25 @@
           document.getElementById("category-buttons").style.display = "block";
         });
 
-      // User scores
-      socket.on("scoreUpdated", (data) => {
-    let scoreDisplay = document.getElementById(`score-${data.nickname}`);
 
-    if (!scoreDisplay) {
-      scoreDisplay = document.createElement("div");
-      scoreDisplay.id = `score-${data.nickname}`;
-      scoreDisplay.className = "score-item"; 
-      document.getElementById("scores").appendChild(scoreDisplay);
-    }
+       
 
-    scoreDisplay.innerText = `${data.nickname}: ${data.score}`;
-  
+        socket.on("scoreUpdated", (data) => {
+  // Attempt to find an existing score display element for the player
+  let scoreDisplay = document.getElementById(`score-${data.nickname}`);
 
-        const scoreElementId = `${data.nickname}-score`;
-        const scoreElement = document.getElementById(scoreElementId);
+  // If the score display element doesn't exist, create it
+  if (!scoreDisplay) {
+    scoreDisplay = document.createElement("div");
+    scoreDisplay.id = `score-${data.nickname}`; // Ensure the ID is unique to the player
+    scoreDisplay.className = "score-item"; // Optionally, assign a class for styling
+    document.getElementById("scores").appendChild(scoreDisplay);
+  }
 
-        if (scoreElement) {
-          scoreElement.innerText = `Score: ${data.score}`;
-        } else {
-          console.error(`Score element for ${data.nickname} not found.`);
-        }
-      });
+  // Update the score display with the latest score
+  scoreDisplay.innerText = `${data.nickname}: ${data.score}`;
+});
+
 
       function fetchNextPark() {
         fetch("/getNationalParkImage")
@@ -187,6 +182,37 @@
             generateQuestionsForCategory(currentCategory); // grab a new question
           }
         });
+
+
+
+        document.getElementById("endGameBtn").addEventListener("click", function () {
+    // Emit the 'endGame' event to notify the server to end the game
+    socket.emit('endGame');
+  });
+
+  socket.on('gameEnded', (finalScores) => {
+    // Hide unnecessary elements
+    document.getElementById("question-container").style.display = "none";
+    document.getElementById("nationalParks").style.display = "none";
+
+    // Prepare to display final scores
+    const scoresDiv = document.getElementById("scores");
+    scoresDiv.innerHTML = '<h3>Final Scores</h3>'; // Reset the scores area
+
+    // Check if finalScores is an object and has properties
+    if(finalScores && typeof finalScores === 'object' && Object.keys(finalScores).length > 0) {
+      Object.keys(finalScores).forEach(nickname => {
+        // Append each player's score to the scoresDiv
+        scoresDiv.innerHTML += `<p>${nickname}: ${finalScores[nickname]}</p>`;
+      });
+    } else {
+      // If no scores were received or there was an error
+      scoresDiv.innerHTML += `<p>No scores available.</p>`;
+    }
+  });
+
+
+
     </script>
 
     <div class="back-to-home">
